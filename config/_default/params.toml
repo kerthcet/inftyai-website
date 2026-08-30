@@ -1,13 +1,15 @@
 # Hugo
-title = "My Docs"
-description = "Congrats on setting up a new Doks project!"
+title = "InftyAI"
+description = "Exploring the ∞ possibilities of AI"
 images = ["cover.png"]
 
 # mainSections
 mainSections = ["docs"]
 
 [social]
-  twitter = "getdoks"
+  # Drives <meta name="twitter:site">, i.e. who X credits when the site is shared.
+  # Was "getdoks", the theme author's handle, left over from the starter.
+  twitter = "InftyAI"
 
 # Doks (@thulite/doks-core)
 [doks]
@@ -48,7 +50,12 @@ mainSections = ["docs"]
   toTopButton = false # false (default) or true
   breadcrumbTrail = false # false (default) or true
   headlineHash = true # true (default) or false
-  scrollSpy = true # true (default) or false
+  # Off, because there is nothing to spy on: scrollspy highlights the current
+  # heading inside `#toc`, and no page on this site renders a table of contents.
+  # Leaving it on had one real effect — `tabindex="0"` on `<body>`, which made the
+  # body itself the first Tab stop and pushed the skip link to second. Turn this
+  # back on if a docs section with a TOC is ever added.
+  scrollSpy = false # true (default) or false
 
   # Multilingual
   multilingualMode = false # false (default) or true
@@ -60,7 +67,7 @@ mainSections = ["docs"]
 
   # UX
   headerBar = false # true (default) or false
-  backgroundDots = true # true (default) or false
+  backgroundDots = false # true (default) or false
 
   # Homepage
   sectionFooter = false # false (default) or true
