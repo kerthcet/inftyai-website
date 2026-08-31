@@ -31,7 +31,9 @@ const DEFAULT_LABEL = { dx: 11, dy: 4, anchor: "start" };
 // the projects the page shows. Read with a regex rather than a YAML parser to
 // keep tools/ dependency-free, which the one shape being matched allows.
 const projects = await readFile("data/projects.yaml", "utf8");
-const repos = [...projects.matchAll(/^\s*repo:\s*(\S+)\s*$/gm)].map((m) => m[1]);
+const repos = [...projects.matchAll(/^\s*repo:\s*(\S+)\s*$/gm)].map(
+  (m) => m[1],
+);
 if (!repos.length) {
   exit("found no `repo:` entries in data/projects.yaml");
 }
@@ -111,6 +113,30 @@ for (const login of [...logins].sort()) {
   located += 1;
 }
 
+// A country-level place is a fallback: it says "somewhere in this country", which
+// is worth drawing only while nothing better is known about that country. Once a
+// city there is on the map, the country's own mark goes — a blob over China beside
+// five Chinese cities reads as a sixth city that nobody lives in.
+//
+// Snapshot first, because everyone a dropped mark stood for still belongs to a
+// region: their country is known, only their position is not. Everything derived
+// below counts `matched` rather than `places`, and that is what holds the
+// percentages still while the map loses a mark.
+//
+// Data-dependent, so it is reversible: if every contributor in a Chinese city left
+// and only a bare "China" remained, the country mark would come back. That is the
+// rule working, but it does mean the map can change shape from the contributor list
+// alone, with no edit to this file.
+const matched = [...places.values()];
+const mappedCities = new Set(
+  matched.filter((place) => !place.countryOnly).map((place) => place.country),
+);
+for (const place of matched) {
+  if (place.countryOnly && mappedCities.has(place.country)) {
+    places.delete(place.label);
+  }
+}
+
 // The summary beside the map is by region, not by city or country. Ten cities was
 // a longer list than the map has dots worth explaining, and five of them were
 // Chinese, which made it read as a ranking of Chinese cities rather than as the
@@ -123,7 +149,7 @@ for (const login of [...logins].sort()) {
 // from the "Others" row added below — an Unknown has a dot on the map and only
 // wants a line in tools/locations.json, so in a healthy run it never appears.
 const regionCounts = new Map();
-for (const place of places.values()) {
+for (const place of matched) {
   let region = regions[place.country];
   if (!region) {
     region = "Unknown";
@@ -200,13 +226,19 @@ const output = {
   generated: new Date().toISOString().slice(0, 10),
   total: logins.size,
   located,
-  // Cities: one dot each on the map. Largest first, so the template draws the big
-  // dots before the small ones and a city of one is never hidden underneath a
-  // city of six.
+  // One mark each on the map. Largest first, so the template draws the big dots
+  // before the small ones and a city of one is never hidden underneath a city of
+  // six. Country-level fallbacks that have yielded to a city are already gone.
   places: [...places.values()].sort((a, b) => b.count - a.count),
-  // How many countries those cities are in. Not shown, but it is what the map's
-  // accessible name says, being more use to a screen reader than "4 regions".
-  countryCount: new Set([...places.values()].map((p) => p.country)).size,
+  // Marks that are actually cities, which is not `len places`: a country-level
+  // fallback is a mark too. Only used by the map's accessible name, which called
+  // India a city before this existed.
+  cities: matched.filter((place) => !place.countryOnly).length,
+  // How many countries the located contributors are in — from `matched`, so a
+  // country whose fallback mark was dropped still counts. Not shown, but it is
+  // what the map's accessible name says, being more use to a screen reader than
+  // "4 regions".
+  countryCount: new Set(matched.map((p) => p.country)).size,
   // Regions plus the "Others" remainder: one row each in the summary. `count` is
   // not rendered — `percent` is — but it stays so the file can be checked against
   // itself: the counts sum to `total`, and the percents to 100.
@@ -223,7 +255,7 @@ await writeFile(
 
 console.log(
   `\ndata/contributors.json: ${output.located} of ${output.total} contributors placed` +
-    ` in ${output.places.length} cities across ${output.countryCount} countries`,
+    ` in ${output.cities} cities across ${output.countryCount} countries`,
 );
 
 // Printed rather than thrown: an unknown location costs one dot, and blocking the
