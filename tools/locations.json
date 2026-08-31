@@ -89,8 +89,21 @@
       "lng": -118.24
     },
 
-    "//country-level": "Some profiles name only a country. The dot sits near its centre, and the label says no more than the profile did.",
-    "india": { "label": "India", "country": "India", "lat": 22.0, "lng": 79.0 },
+    "//country-level": "Some profiles name only a country. `countryOnly` marks these as a fallback: the mark sits near the country's centre and is labelled with no more than the profile said, but it is dropped entirely once a city in that country is on the map — a blob over China beside five Chinese cities reads as a sixth city nobody lives in. Dropped from the map only; the people it stood for still count toward their region in the summary, since their country is known and only their position is not. So the lat/lng here are used only while that country has no cities.",
+    "china": {
+      "label": "China",
+      "country": "China",
+      "lat": 40.0,
+      "lng": 95.0,
+      "countryOnly": true
+    },
+    "india": {
+      "label": "India",
+      "country": "India",
+      "lat": 22.0,
+      "lng": 79.0,
+      "countryOnly": true
+    },
 
     "//not-places": "Real values from real profiles that no map can place.",
     "remote": null,
@@ -118,6 +131,7 @@
     "Chengdu, China": { "dx": -11, "dy": 4, "anchor": "end" },
     "Guangzhou, China": { "dx": -12, "dy": 0, "anchor": "end" },
     "Shenzhen, China": { "dx": 12, "dy": 11, "anchor": "start" },
+    "China": { "dx": -14, "dy": 4, "anchor": "end" },
     "India": { "dx": 0, "dy": 26, "anchor": "middle" },
     "Cambridge, UK": { "dx": -10, "dy": 1, "anchor": "end" },
     "Berlin, Germany": { "dx": 10, "dy": -3, "anchor": "start" },

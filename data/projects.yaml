@@ -9,12 +9,12 @@
 projects:
   - name: Awesome-LLMOps
     repo: InftyAI/Awesome-LLMOps
-    url: https://awesome-llmops.inftyai.com
+    url: https://github.com/InftyAI/Awesome-LLMOps
     description: "An awesome & curated list of best LLMOps tools."
 
   - name: llmaz
     repo: InftyAI/llmaz
-    url: https://llmaz.inftyai.com/
+    url: https://github.com/InftyAI/llmaz
     description: "Easy, advanced inference platform for large language models on Kubernetes."
 
   - name: Alphatrion

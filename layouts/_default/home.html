@@ -33,7 +33,9 @@
 <section class="section section-contributors">
     <div class="container">
         <h2 class="feature-grid-title">Contributors</h2>
-        {{ $summary := printf "%d of %d contributors, in %d cities across %d countries" (int .located) (int .total) (len .places) (int .countryCount) -}}
+        {{/* `.cities` rather than `len .places`: a country-level fallback is a mark
+             but not a city, so counting the marks called India a city. */}}
+        {{ $summary := printf "%d of %d contributors, in %d cities across %d countries" (int .located) (int .total) (int .cities) (int .countryCount) -}}
         <div class="worldmap-layout">
         <figure class="worldmap">
             {{/* `role="img"` with a label: the map is one graphic, and without it

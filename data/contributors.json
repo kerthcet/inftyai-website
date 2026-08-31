@@ -21,6 +21,7 @@
       "country": "India",
       "lat": 22,
       "lng": 79,
+      "countryOnly": true,
       "short": "India",
       "offset": {
         "dx": 0,
@@ -134,6 +135,7 @@
       "count": 1
     }
   ],
+  "cities": 9,
   "countryCount": 6,
   "regions": [
     {
