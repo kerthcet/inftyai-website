@@ -54,16 +54,57 @@
                 {{/* Area, not radius, carries the count: doubling the radius
                      would draw a city of two as four times the city of one.
 
-                     The base is set from the narrowest case rather than the
-                     widest. These are viewBox units, so they shrink with the
-                     map: at 390px the svg renders at roughly a third of its
-                     1000-unit width, which turned a radius of 4 into 1.4 real
-                     pixels and lost the single-contributor cities altogether. */}}
-                {{ $r := mul 6.0 (math.Sqrt .count) -}}
+                     Strictly proportional area — 6·√count — is where this started,
+                     and it drew Shanghai at a radius of 14.7 against 6 for a city
+                     of one. Rendered, that is not a bigger dot, it is the subject
+                     of the map: six of thirty-five contributors took the eye and
+                     the other nine cities read as its outliers. So the area is
+                     offset rather than proportional. The first contributor buys a
+                     mark of a fixed size, and each one after adds half that mark's
+                     area again — Shanghai lands at 11.2, still unmistakably the
+                     largest, without being the only thing on the map.
+
+                     That is a compressed scale and it should be said plainly:
+                     these dots are comparable, not measurable. Nothing here rests
+                     on reading a count out of a radius — every city's exact number
+                     is in its `<title>` tooltip, and the shares are the text list
+                     beside the map.
+
+                     The compression is at the top rather than in the base, because
+                     the base is set from the narrowest case. These are viewBox
+                     units, so they shrink with the map: at 390px the svg renders at
+                     roughly a third of its 1000-unit width, which turned a radius
+                     of 4 into 1.4 real pixels and lost the single-contributor
+                     cities altogether. Scaling everything down to shrink Shanghai
+                     would have spent them again. */}}
+                {{ $r := mul 6.0 (math.Sqrt (add 1.0 (mul 0.5 (sub .count 1)))) -}}
                 <g class="worldmap-place">
                     {{/* Native tooltip — no JS, and it works on the keyboard in
                          the browsers that surface it. */}}
                     <title>{{ .label }} — {{ .count }} contributor{{ if ne (int .count) 1 }}s{{ end }}</title>
+                    {{/* The ring that pulses out of the dot. Grown by the stylesheet,
+                         so one animation covers every size; first in the group, so it
+                         passes under the dot rather than over the top of it.
+
+                         Drawn halfway between the dot's own radius and a common 13, not
+                         at the dot's radius, which is where this started. The stylesheet
+                         grows the ring by a factor, so a radius of 6 travelled 6 units
+                         where Shanghai's 11.2 travelled 12: the cities of one — most of
+                         the map — got half the movement over the shortest distance, and
+                         read as static dots beside a breathing Shanghai. Averaging with
+                         a constant lifts them to 9.5 and leaves Shanghai at 12.1, so the
+                         smallest cities gain most of the ring they were missing while
+                         the rings stay in the order the dots are in: a smaller dot still
+                         has a smaller circle. It costs nothing in meaning — the count is
+                         the dot, and the ring only says the map is live — so the rings
+                         can be closer in size than the counts are.
+
+                         Not the halo below, which is the hover target — scaling that
+                         would have made the tooltip's hit area breathe under the
+                         cursor. Decoration only, and it is nowhere in the
+                         accessibility tree: the svg is a single `role="img"`. */}}
+                    <circle class="worldmap-pulse" cx="{{ printf "%.1f" $x }}" cy="{{ printf "%.1f" $y }}"
+                        r="{{ printf "%.1f" (div (add $r 13.0) 2.0) }}" />
                     <circle class="worldmap-halo" cx="{{ printf "%.1f" $x }}" cy="{{ printf "%.1f" $y }}"
                         r="{{ printf "%.1f" (mul $r 2.1) }}" />
                     <circle class="worldmap-dot" cx="{{ printf "%.1f" $x }}" cy="{{ printf "%.1f" $y }}"
