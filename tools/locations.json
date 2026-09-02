@@ -1,49 +1,19 @@
 {
   "//": "Turns the free text of a GitHub profile's Location field into a point on the homepage map. Read by tools/contributors.mjs, which prints every location it cannot find here so this file can be extended.",
-
-  "//places": "Keys are normalised: lowercased, trimmed, one space after each comma. Several keys may share a label — that is how aliases work. A null value means the value is known not to be a place, and is skipped without a warning.",
+  "//places": "Keys are normalised: lowercased, trimmed, one space after each comma. Several keys may share a label — that is how aliases work. A null value means the value is known not to be a place, and is skipped without a warning. A string value is an alias for another key: the entry it names is used, so the coordinates live in one place.",
   "places": {
-    "shanghai": {
-      "label": "Shanghai, China",
-      "country": "China",
-      "lat": 31.23,
-      "lng": 121.47
-    },
-    "shanghai, china": {
-      "label": "Shanghai, China",
-      "country": "China",
-      "lat": 31.23,
-      "lng": 121.47
-    },
-    "shanghai yangpu": {
-      "label": "Shanghai, China",
-      "country": "China",
-      "lat": 31.23,
-      "lng": 121.47
-    },
+    "//cities": "One dot each on the map, keyed by the city name on its own. Coordinates are the city centre to two decimals — the map is 1000 units wide for the whole world, where a hundredth of a degree is far under a pixel, so more precision than that is decoration. Only a handful of these have a hand-placed entry under `labels` below; the rest take the default until they actually appear on the map and their label is seen to collide with something.",
     "beijing": {
       "label": "Beijing, China",
       "country": "China",
       "lat": 39.9,
       "lng": 116.41
     },
-    "beijing, china": {
-      "label": "Beijing, China",
+    "shanghai": {
+      "label": "Shanghai, China",
       "country": "China",
-      "lat": 39.9,
-      "lng": 116.41
-    },
-    "chengdu": {
-      "label": "Chengdu, China",
-      "country": "China",
-      "lat": 30.57,
-      "lng": 104.07
-    },
-    "guangzhou": {
-      "label": "Guangzhou, China",
-      "country": "China",
-      "lat": 23.13,
-      "lng": 113.26
+      "lat": 31.23,
+      "lng": 121.47
     },
     "shenzhen": {
       "label": "Shenzhen, China",
@@ -51,24 +21,173 @@
       "lat": 22.54,
       "lng": 114.06
     },
-    "shenzhen, china": {
-      "label": "Shenzhen, China",
+    "guangzhou": {
+      "label": "Guangzhou, China",
       "country": "China",
-      "lat": 22.54,
-      "lng": 114.06
+      "lat": 23.13,
+      "lng": 113.26
     },
-    "sz": {
-      "label": "Shenzhen, China",
+    "hangzhou": {
+      "label": "Hangzhou, China",
       "country": "China",
-      "lat": 22.54,
-      "lng": 114.06
+      "lat": 30.27,
+      "lng": 120.15
     },
-
+    "chengdu": {
+      "label": "Chengdu, China",
+      "country": "China",
+      "lat": 30.57,
+      "lng": 104.07
+    },
+    "nanjing": {
+      "label": "Nanjing, China",
+      "country": "China",
+      "lat": 32.06,
+      "lng": 118.8
+    },
+    "wuhan": {
+      "label": "Wuhan, China",
+      "country": "China",
+      "lat": 30.59,
+      "lng": 114.31
+    },
+    "xi'an": {
+      "label": "Xi'an, China",
+      "country": "China",
+      "lat": 34.34,
+      "lng": 108.94
+    },
+    "suzhou": {
+      "label": "Suzhou, China",
+      "country": "China",
+      "lat": 31.3,
+      "lng": 120.58
+    },
+    "hong kong": {
+      "label": "Hong Kong",
+      "country": "Hong Kong",
+      "lat": 22.32,
+      "lng": 114.17
+    },
+    "taipei": {
+      "label": "Taipei",
+      "country": "Taiwan",
+      "lat": 25.03,
+      "lng": 121.57
+    },
+    "tokyo": {
+      "label": "Tokyo, Japan",
+      "country": "Japan",
+      "lat": 35.68,
+      "lng": 139.69
+    },
+    "seoul": {
+      "label": "Seoul, South Korea",
+      "country": "South Korea",
+      "lat": 37.57,
+      "lng": 126.98
+    },
+    "singapore": {
+      "label": "Singapore",
+      "country": "Singapore",
+      "lat": 1.35,
+      "lng": 103.82
+    },
+    "bengaluru": {
+      "label": "Bengaluru, India",
+      "country": "India",
+      "lat": 12.97,
+      "lng": 77.59
+    },
+    "mumbai": {
+      "label": "Mumbai, India",
+      "country": "India",
+      "lat": 19.08,
+      "lng": 72.88
+    },
+    "new delhi": {
+      "label": "New Delhi, India",
+      "country": "India",
+      "lat": 28.61,
+      "lng": 77.21
+    },
+    "hyderabad": {
+      "label": "Hyderabad, India",
+      "country": "India",
+      "lat": 17.39,
+      "lng": 78.49
+    },
+    "chennai": {
+      "label": "Chennai, India",
+      "country": "India",
+      "lat": 13.08,
+      "lng": 80.27
+    },
+    "pune": {
+      "label": "Pune, India",
+      "country": "India",
+      "lat": 18.52,
+      "lng": 73.86
+    },
+    "jakarta": {
+      "label": "Jakarta, Indonesia",
+      "country": "Indonesia",
+      "lat": -6.21,
+      "lng": 106.85
+    },
+    "bangkok": {
+      "label": "Bangkok, Thailand",
+      "country": "Thailand",
+      "lat": 13.76,
+      "lng": 100.5
+    },
+    "ho chi minh city": {
+      "label": "Ho Chi Minh City, Vietnam",
+      "country": "Vietnam",
+      "lat": 10.82,
+      "lng": 106.63
+    },
+    "tel aviv": {
+      "label": "Tel Aviv, Israel",
+      "country": "Israel",
+      "lat": 32.09,
+      "lng": 34.78
+    },
+    "dubai": {
+      "label": "Dubai, UAE",
+      "country": "United Arab Emirates",
+      "lat": 25.2,
+      "lng": 55.27
+    },
+    "istanbul": {
+      "label": "Istanbul, Turkey",
+      "country": "Turkey",
+      "lat": 41.01,
+      "lng": 28.98
+    },
+    "london": {
+      "label": "London, UK",
+      "country": "United Kingdom",
+      "lat": 51.51,
+      "lng": -0.13
+    },
     "cambridge, uk": {
       "label": "Cambridge, UK",
       "country": "United Kingdom",
       "lat": 52.2,
       "lng": 0.12
+    },
+    "dublin": {
+      "label": "Dublin, Ireland",
+      "country": "Ireland",
+      "lat": 53.35,
+      "lng": -6.26
+    },
+    "paris": {
+      "label": "Paris, France",
+      "country": "France",
+      "lat": 48.86,
+      "lng": 2.35
     },
     "berlin": {
       "label": "Berlin, Germany",
@@ -76,58 +195,759 @@
       "lat": 52.52,
       "lng": 13.4
     },
+    "munich": {
+      "label": "Munich, Germany",
+      "country": "Germany",
+      "lat": 48.14,
+      "lng": 11.58
+    },
+    "amsterdam": {
+      "label": "Amsterdam, Netherlands",
+      "country": "Netherlands",
+      "lat": 52.37,
+      "lng": 4.9
+    },
+    "brussels": {
+      "label": "Brussels, Belgium",
+      "country": "Belgium",
+      "lat": 50.85,
+      "lng": 4.35
+    },
+    "zurich": {
+      "label": "Zurich, Switzerland",
+      "country": "Switzerland",
+      "lat": 47.38,
+      "lng": 8.54
+    },
+    "vienna": {
+      "label": "Vienna, Austria",
+      "country": "Austria",
+      "lat": 48.21,
+      "lng": 16.37
+    },
+    "madrid": {
+      "label": "Madrid, Spain",
+      "country": "Spain",
+      "lat": 40.42,
+      "lng": -3.7
+    },
+    "barcelona": {
+      "label": "Barcelona, Spain",
+      "country": "Spain",
+      "lat": 41.39,
+      "lng": 2.17
+    },
+    "lisbon": {
+      "label": "Lisbon, Portugal",
+      "country": "Portugal",
+      "lat": 38.72,
+      "lng": -9.14
+    },
+    "milan": {
+      "label": "Milan, Italy",
+      "country": "Italy",
+      "lat": 45.46,
+      "lng": 9.19
+    },
+    "stockholm": {
+      "label": "Stockholm, Sweden",
+      "country": "Sweden",
+      "lat": 59.33,
+      "lng": 18.07
+    },
+    "copenhagen": {
+      "label": "Copenhagen, Denmark",
+      "country": "Denmark",
+      "lat": 55.68,
+      "lng": 12.57
+    },
+    "oslo": {
+      "label": "Oslo, Norway",
+      "country": "Norway",
+      "lat": 59.91,
+      "lng": 10.75
+    },
+    "helsinki": {
+      "label": "Helsinki, Finland",
+      "country": "Finland",
+      "lat": 60.17,
+      "lng": 24.94
+    },
+    "warsaw": {
+      "label": "Warsaw, Poland",
+      "country": "Poland",
+      "lat": 52.23,
+      "lng": 21.01
+    },
+    "prague": {
+      "label": "Prague, Czechia",
+      "country": "Czechia",
+      "lat": 50.08,
+      "lng": 14.44
+    },
+    "budapest": {
+      "label": "Budapest, Hungary",
+      "country": "Hungary",
+      "lat": 47.5,
+      "lng": 19.04
+    },
+    "bucharest": {
+      "label": "Bucharest, Romania",
+      "country": "Romania",
+      "lat": 44.43,
+      "lng": 26.1
+    },
+    "athens": {
+      "label": "Athens, Greece",
+      "country": "Greece",
+      "lat": 37.98,
+      "lng": 23.73
+    },
+    "kyiv": {
+      "label": "Kyiv, Ukraine",
+      "country": "Ukraine",
+      "lat": 50.45,
+      "lng": 30.52
+    },
+    "moscow": {
+      "label": "Moscow, Russia",
+      "country": "Russia",
+      "lat": 55.76,
+      "lng": 37.62
+    },
+    "san francisco": {
+      "label": "San Francisco, USA",
+      "country": "United States",
+      "lat": 37.77,
+      "lng": -122.42
+    },
+    "palo alto": {
+      "label": "Palo Alto, USA",
+      "country": "United States",
+      "lat": 37.44,
+      "lng": -122.14
+    },
+    "mountain view": {
+      "label": "Mountain View, USA",
+      "country": "United States",
+      "lat": 37.39,
+      "lng": -122.08
+    },
+    "san jose": {
+      "label": "San Jose, USA",
+      "country": "United States",
+      "lat": 37.34,
+      "lng": -121.89
+    },
+    "los angeles": {
+      "label": "Los Angeles, USA",
+      "country": "United States",
+      "lat": 34.05,
+      "lng": -118.24
+    },
+    "seattle": {
+      "label": "Seattle, USA",
+      "country": "United States",
+      "lat": 47.61,
+      "lng": -122.33
+    },
+    "denver": {
+      "label": "Denver, USA",
+      "country": "United States",
+      "lat": 39.74,
+      "lng": -104.99
+    },
+    "austin": {
+      "label": "Austin, USA",
+      "country": "United States",
+      "lat": 30.27,
+      "lng": -97.74
+    },
+    "chicago": {
+      "label": "Chicago, USA",
+      "country": "United States",
+      "lat": 41.88,
+      "lng": -87.63
+    },
+    "boston": {
+      "label": "Boston, USA",
+      "country": "United States",
+      "lat": 42.36,
+      "lng": -71.06
+    },
+    "new york": {
+      "label": "New York, USA",
+      "country": "United States",
+      "lat": 40.71,
+      "lng": -74.01
+    },
+    "washington, dc": {
+      "label": "Washington, DC",
+      "country": "United States",
+      "lat": 38.91,
+      "lng": -77.04
+    },
+    "atlanta": {
+      "label": "Atlanta, USA",
+      "country": "United States",
+      "lat": 33.75,
+      "lng": -84.39
+    },
+    "toronto": {
+      "label": "Toronto, Canada",
+      "country": "Canada",
+      "lat": 43.65,
+      "lng": -79.38
+    },
+    "montreal": {
+      "label": "Montreal, Canada",
+      "country": "Canada",
+      "lat": 45.5,
+      "lng": -73.57
+    },
+    "vancouver": {
+      "label": "Vancouver, Canada",
+      "country": "Canada",
+      "lat": 49.28,
+      "lng": -123.12
+    },
+    "mexico city": {
+      "label": "Mexico City, Mexico",
+      "country": "Mexico",
+      "lat": 19.43,
+      "lng": -99.13
+    },
+    "sao paulo": {
+      "label": "Sao Paulo, Brazil",
+      "country": "Brazil",
+      "lat": -23.55,
+      "lng": -46.63
+    },
+    "rio de janeiro": {
+      "label": "Rio de Janeiro, Brazil",
+      "country": "Brazil",
+      "lat": -22.91,
+      "lng": -43.17
+    },
+    "buenos aires": {
+      "label": "Buenos Aires, Argentina",
+      "country": "Argentina",
+      "lat": -34.6,
+      "lng": -58.38
+    },
+    "santiago": {
+      "label": "Santiago, Chile",
+      "country": "Chile",
+      "lat": -33.45,
+      "lng": -70.67
+    },
+    "bogota": {
+      "label": "Bogota, Colombia",
+      "country": "Colombia",
+      "lat": 4.71,
+      "lng": -74.07
+    },
+    "lima": {
+      "label": "Lima, Peru",
+      "country": "Peru",
+      "lat": -12.05,
+      "lng": -77.04
+    },
+    "cairo": {
+      "label": "Cairo, Egypt",
+      "country": "Egypt",
+      "lat": 30.04,
+      "lng": 31.24
+    },
+    "lagos": {
+      "label": "Lagos, Nigeria",
+      "country": "Nigeria",
+      "lat": 6.52,
+      "lng": 3.38
+    },
+    "nairobi": {
+      "label": "Nairobi, Kenya",
+      "country": "Kenya",
+      "lat": -1.29,
+      "lng": 36.82
+    },
+    "casablanca": {
+      "label": "Casablanca, Morocco",
+      "country": "Morocco",
+      "lat": 33.57,
+      "lng": -7.59
+    },
+    "cape town": {
+      "label": "Cape Town, South Africa",
+      "country": "South Africa",
+      "lat": -33.92,
+      "lng": 18.42
+    },
+    "johannesburg": {
+      "label": "Johannesburg, South Africa",
+      "country": "South Africa",
+      "lat": -26.2,
+      "lng": 28.05
+    },
+    "sydney": {
+      "label": "Sydney, Australia",
+      "country": "Australia",
+      "lat": -33.87,
+      "lng": 151.21
+    },
     "melbourne": {
       "label": "Melbourne, Australia",
       "country": "Australia",
       "lat": -37.81,
       "lng": 144.96
     },
-    "los angeles, ca": {
-      "label": "Los Angeles, USA",
-      "country": "United States",
-      "lat": 34.05,
-      "lng": -118.24
+    "brisbane": {
+      "label": "Brisbane, Australia",
+      "country": "Australia",
+      "lat": -27.47,
+      "lng": 153.03
     },
-
+    "perth": {
+      "label": "Perth, Australia",
+      "country": "Australia",
+      "lat": -31.95,
+      "lng": 115.86
+    },
+    "auckland": {
+      "label": "Auckland, New Zealand",
+      "country": "New Zealand",
+      "lat": -36.85,
+      "lng": 174.76
+    },
     "//country-level": "Some profiles name only a country. `countryOnly` marks these as a fallback: the mark sits near the country's centre and is labelled with no more than the profile said, but it is dropped entirely once a city in that country is on the map — a blob over China beside five Chinese cities reads as a sixth city nobody lives in. Dropped from the map only; the people it stood for still count toward their region in the summary, since their country is known and only their position is not. So the lat/lng here are used only while that country has no cities.",
     "china": {
       "label": "China",
       "country": "China",
-      "lat": 40.0,
-      "lng": 95.0,
+      "lat": 40,
+      "lng": 95,
       "countryOnly": true
     },
     "india": {
       "label": "India",
       "country": "India",
-      "lat": 22.0,
-      "lng": 79.0,
+      "lat": 22,
+      "lng": 79,
       "countryOnly": true
     },
-
+    "japan": {
+      "label": "Japan",
+      "country": "Japan",
+      "lat": 36.5,
+      "lng": 138,
+      "countryOnly": true
+    },
+    "south korea": {
+      "label": "South Korea",
+      "country": "South Korea",
+      "lat": 36.5,
+      "lng": 127.9,
+      "countryOnly": true
+    },
+    "indonesia": {
+      "label": "Indonesia",
+      "country": "Indonesia",
+      "lat": -2.5,
+      "lng": 118,
+      "countryOnly": true
+    },
+    "vietnam": {
+      "label": "Vietnam",
+      "country": "Vietnam",
+      "lat": 16,
+      "lng": 106,
+      "countryOnly": true
+    },
+    "thailand": {
+      "label": "Thailand",
+      "country": "Thailand",
+      "lat": 15.1,
+      "lng": 101,
+      "countryOnly": true
+    },
+    "pakistan": {
+      "label": "Pakistan",
+      "country": "Pakistan",
+      "lat": 30.4,
+      "lng": 69.3,
+      "countryOnly": true
+    },
+    "bangladesh": {
+      "label": "Bangladesh",
+      "country": "Bangladesh",
+      "lat": 23.7,
+      "lng": 90.4,
+      "countryOnly": true
+    },
+    "israel": {
+      "label": "Israel",
+      "country": "Israel",
+      "lat": 31.4,
+      "lng": 35,
+      "countryOnly": true
+    },
+    "turkey": {
+      "label": "Turkey",
+      "country": "Turkey",
+      "lat": 39,
+      "lng": 35.2,
+      "countryOnly": true
+    },
+    "united states": {
+      "label": "United States",
+      "country": "United States",
+      "lat": 39.5,
+      "lng": -98.35,
+      "countryOnly": true
+    },
+    "canada": {
+      "label": "Canada",
+      "country": "Canada",
+      "lat": 56,
+      "lng": -106,
+      "countryOnly": true
+    },
+    "mexico": {
+      "label": "Mexico",
+      "country": "Mexico",
+      "lat": 23.6,
+      "lng": -102.5,
+      "countryOnly": true
+    },
+    "united kingdom": {
+      "label": "United Kingdom",
+      "country": "United Kingdom",
+      "lat": 54,
+      "lng": -2.5,
+      "countryOnly": true
+    },
+    "germany": {
+      "label": "Germany",
+      "country": "Germany",
+      "lat": 51,
+      "lng": 10,
+      "countryOnly": true
+    },
+    "france": {
+      "label": "France",
+      "country": "France",
+      "lat": 46.6,
+      "lng": 2.4,
+      "countryOnly": true
+    },
+    "netherlands": {
+      "label": "Netherlands",
+      "country": "Netherlands",
+      "lat": 52.2,
+      "lng": 5.5,
+      "countryOnly": true
+    },
+    "spain": {
+      "label": "Spain",
+      "country": "Spain",
+      "lat": 40.2,
+      "lng": -3.7,
+      "countryOnly": true
+    },
+    "italy": {
+      "label": "Italy",
+      "country": "Italy",
+      "lat": 42.8,
+      "lng": 12.6,
+      "countryOnly": true
+    },
+    "poland": {
+      "label": "Poland",
+      "country": "Poland",
+      "lat": 52.1,
+      "lng": 19.4,
+      "countryOnly": true
+    },
+    "sweden": {
+      "label": "Sweden",
+      "country": "Sweden",
+      "lat": 62,
+      "lng": 15,
+      "countryOnly": true
+    },
+    "switzerland": {
+      "label": "Switzerland",
+      "country": "Switzerland",
+      "lat": 46.8,
+      "lng": 8.2,
+      "countryOnly": true
+    },
+    "ukraine": {
+      "label": "Ukraine",
+      "country": "Ukraine",
+      "lat": 49,
+      "lng": 31.5,
+      "countryOnly": true
+    },
+    "russia": {
+      "label": "Russia",
+      "country": "Russia",
+      "lat": 60,
+      "lng": 90,
+      "countryOnly": true
+    },
+    "brazil": {
+      "label": "Brazil",
+      "country": "Brazil",
+      "lat": -10,
+      "lng": -52,
+      "countryOnly": true
+    },
+    "argentina": {
+      "label": "Argentina",
+      "country": "Argentina",
+      "lat": -35,
+      "lng": -65,
+      "countryOnly": true
+    },
+    "nigeria": {
+      "label": "Nigeria",
+      "country": "Nigeria",
+      "lat": 9.1,
+      "lng": 8.7,
+      "countryOnly": true
+    },
+    "kenya": {
+      "label": "Kenya",
+      "country": "Kenya",
+      "lat": 0.2,
+      "lng": 37.9,
+      "countryOnly": true
+    },
+    "egypt": {
+      "label": "Egypt",
+      "country": "Egypt",
+      "lat": 26.8,
+      "lng": 30.8,
+      "countryOnly": true
+    },
+    "south africa": {
+      "label": "South Africa",
+      "country": "South Africa",
+      "lat": -29,
+      "lng": 24.7,
+      "countryOnly": true
+    },
+    "australia": {
+      "label": "Australia",
+      "country": "Australia",
+      "lat": -25,
+      "lng": 134,
+      "countryOnly": true
+    },
+    "new zealand": {
+      "label": "New Zealand",
+      "country": "New Zealand",
+      "lat": -41.5,
+      "lng": 172.5,
+      "countryOnly": true
+    },
+    "//aliases": "The other spellings the same places arrive as: with the country or the state appended, abbreviated, in the local script, or named after the wider area rather than the city. Each is the key of the entry it stands for.",
+    "shanghai, china": "shanghai",
+    "shanghai yangpu": "shanghai",
+    "上海": "shanghai",
+    "beijing, china": "beijing",
+    "北京": "beijing",
+    "shenzhen, china": "shenzhen",
+    "sz": "shenzhen",
+    "深圳": "shenzhen",
+    "guangzhou, china": "guangzhou",
+    "广州": "guangzhou",
+    "hangzhou, china": "hangzhou",
+    "杭州": "hangzhou",
+    "chengdu, china": "chengdu",
+    "nanjing, china": "nanjing",
+    "wuhan, china": "wuhan",
+    "xian": "xi'an",
+    "xi'an, china": "xi'an",
+    "suzhou, china": "suzhou",
+    "中国": "china",
+    "hong kong, china": "hong kong",
+    "hongkong": "hong kong",
+    "hk": "hong kong",
+    "taipei, taiwan": "taipei",
+    "tokyo, japan": "tokyo",
+    "seoul, south korea": "seoul",
+    "seoul, korea": "seoul",
+    "korea": "south korea",
+    "bangalore": "bengaluru",
+    "bangalore, india": "bengaluru",
+    "bengaluru, india": "bengaluru",
+    "mumbai, india": "mumbai",
+    "delhi": "new delhi",
+    "delhi, india": "new delhi",
+    "new delhi, india": "new delhi",
+    "hyderabad, india": "hyderabad",
+    "chennai, india": "chennai",
+    "pune, india": "pune",
+    "ho chi minh": "ho chi minh city",
+    "saigon": "ho chi minh city",
+    "dubai, uae": "dubai",
+    "tel aviv, israel": "tel aviv",
+    "istanbul, turkey": "istanbul",
+    "london, uk": "london",
+    "london, england": "london",
+    "england": "united kingdom",
+    "uk": "united kingdom",
+    "u.k.": "united kingdom",
+    "paris, france": "paris",
+    "berlin, germany": "berlin",
+    "munich, germany": "munich",
+    "münchen": "munich",
+    "deutschland": "germany",
+    "amsterdam, netherlands": "amsterdam",
+    "the netherlands": "netherlands",
+    "zurich, switzerland": "zurich",
+    "zürich": "zurich",
+    "madrid, spain": "madrid",
+    "barcelona, spain": "barcelona",
+    "milan, italy": "milan",
+    "stockholm, sweden": "stockholm",
+    "warsaw, poland": "warsaw",
+    "moscow, russia": "moscow",
+    "kiev": "kyiv",
+    "kyiv, ukraine": "kyiv",
+    "usa": "united states",
+    "us": "united states",
+    "u.s.": "united states",
+    "u.s.a.": "united states",
+    "united states of america": "united states",
+    "america": "united states",
+    "san francisco, ca": "san francisco",
+    "san francisco, california": "san francisco",
+    "san francisco, usa": "san francisco",
+    "sf": "san francisco",
+    "bay area": "san francisco",
+    "san francisco bay area": "san francisco",
+    "silicon valley": "mountain view",
+    "palo alto, ca": "palo alto",
+    "mountain view, ca": "mountain view",
+    "san jose, ca": "san jose",
+    "los angeles, ca": "los angeles",
+    "seattle, wa": "seattle",
+    "denver, co": "denver",
+    "austin, tx": "austin",
+    "chicago, il": "chicago",
+    "boston, ma": "boston",
+    "cambridge, ma": "boston",
+    "new york, ny": "new york",
+    "new york city": "new york",
+    "nyc": "new york",
+    "brooklyn": "new york",
+    "brooklyn, ny": "new york",
+    "washington dc": "washington, dc",
+    "washington, d.c.": "washington, dc",
+    "dc": "washington, dc",
+    "atlanta, ga": "atlanta",
+    "toronto, canada": "toronto",
+    "toronto, on": "toronto",
+    "montreal, canada": "montreal",
+    "vancouver, canada": "vancouver",
+    "vancouver, bc": "vancouver",
+    "mexico city, mexico": "mexico city",
+    "são paulo": "sao paulo",
+    "sao paulo, brazil": "sao paulo",
+    "rio de janeiro, brazil": "rio de janeiro",
+    "brasil": "brazil",
+    "buenos aires, argentina": "buenos aires",
+    "bogotá": "bogota",
+    "santiago, chile": "santiago",
+    "cairo, egypt": "cairo",
+    "lagos, nigeria": "lagos",
+    "nairobi, kenya": "nairobi",
+    "cape town, south africa": "cape town",
+    "sydney, australia": "sydney",
+    "sydney, nsw": "sydney",
+    "melbourne, australia": "melbourne",
+    "auckland, new zealand": "auckland",
+    "nz": "new zealand",
     "//not-places": "Real values from real profiles that no map can place.",
     "remote": null,
     "earth": null,
+    "planet earth": null,
     "internet": null,
+    "the internet": null,
     "everywhere": null,
+    "somewhere": null,
+    "world": null,
+    "worldwide": null,
+    "global": null,
     "localhost": null,
-    "127.0.0.1": null
+    "127.0.0.1": null,
+    "/dev/null": null,
+    "mars": null,
+    "moon": null,
+    "n/a": null,
+    "-": null
   },
-
-  "//regions": "What the summary beside the map counts by. Continent-coarse on purpose: the UN subregions would have split these six countries into six rows, which is the country list again under another name. tools/contributors.mjs warns about any country missing here.",
+  "//regions": "What the summary beside the map counts by. Continent-coarse on purpose: the UN subregions would have split the six countries the map started with into six rows, which is the country list again under another name — and the table is now long enough that subregions would be a column of ones. Every country named above appears here, so the summary never has to guess; tools/contributors.mjs warns about any that does not. Russia and Turkey straddle two continents and are each filed under one, since a country is one row or none.",
   "regions": {
+    "Argentina": "South America",
+    "Australia": "Oceania",
+    "Austria": "Europe",
+    "Bangladesh": "Asia",
+    "Belgium": "Europe",
+    "Brazil": "South America",
+    "Canada": "North America",
+    "Chile": "South America",
     "China": "Asia",
-    "India": "Asia",
-    "United Kingdom": "Europe",
+    "Colombia": "South America",
+    "Czechia": "Europe",
+    "Denmark": "Europe",
+    "Egypt": "Africa",
+    "Finland": "Europe",
+    "France": "Europe",
     "Germany": "Europe",
+    "Greece": "Europe",
+    "Hong Kong": "Asia",
+    "Hungary": "Europe",
+    "India": "Asia",
+    "Indonesia": "Asia",
+    "Ireland": "Europe",
+    "Israel": "Asia",
+    "Italy": "Europe",
+    "Japan": "Asia",
+    "Kenya": "Africa",
+    "Mexico": "North America",
+    "Morocco": "Africa",
+    "Netherlands": "Europe",
+    "New Zealand": "Oceania",
+    "Nigeria": "Africa",
+    "Norway": "Europe",
+    "Pakistan": "Asia",
+    "Peru": "South America",
+    "Poland": "Europe",
+    "Portugal": "Europe",
+    "Romania": "Europe",
+    "Russia": "Europe",
+    "Singapore": "Asia",
+    "South Africa": "Africa",
+    "South Korea": "Asia",
+    "Spain": "Europe",
+    "Sweden": "Europe",
+    "Switzerland": "Europe",
+    "Taiwan": "Asia",
+    "Thailand": "Asia",
+    "Turkey": "Asia",
+    "Ukraine": "Europe",
+    "United Arab Emirates": "Asia",
+    "United Kingdom": "Europe",
     "United States": "North America",
-    "Australia": "Oceania"
+    "Vietnam": "Asia"
   },
-
   "//labels": "Where each city's name is drawn relative to its dot, in viewBox units, keyed by label so aliases share one entry. Hand-placed because no automatic rule survives east Asia: Guangzhou and Shenzhen are 100km apart, which is 2.6 units at this scale, so their labels have to be pushed to opposite sides by someone looking at the result. Anything not listed defaults to `start` a little to the right. `anchor` is an SVG text-anchor: start places the text to the right of the dot, end to its left, middle centres it.",
   "labels": {
     "Beijing, China": { "dx": 11, "dy": 4, "anchor": "start" },
-    "Shanghai, China": { "dx": 18, "dy": 5, "anchor": "start" },
+    "Shanghai, China": { "dx": 15, "dy": 5, "anchor": "start" },
     "Chengdu, China": { "dx": -11, "dy": 4, "anchor": "end" },
     "Guangzhou, China": { "dx": -12, "dy": 0, "anchor": "end" },
     "Shenzhen, China": { "dx": 12, "dy": 11, "anchor": "start" },

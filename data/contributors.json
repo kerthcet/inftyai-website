@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-31",
+  "generated": "2026-09-01",
   "total": 35,
   "located": 19,
   "places": [
@@ -10,7 +10,7 @@
       "lng": 121.47,
       "short": "Shanghai",
       "offset": {
-        "dx": 18,
+        "dx": 15,
         "dy": 5,
         "anchor": "start"
       },

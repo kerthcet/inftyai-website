@@ -1,0 +1,101 @@
+# Keeps the two numbers on the homepage that come from GitHub moving on their own:
+# the contributor map, regenerated here and committed, and the project star counts,
+# which are looked up while Vercel builds the site.
+#
+# They need different things. The map is a committed snapshot because a new profile
+# location has to be matched by a person in tools/locations.json before it can be a
+# dot, so this job regenerates it and pushes. The stars are already fetched on every
+# build and only want a build to happen — which a push gives, and the Vercel deploy
+# hook at the end covers on the days there is nothing to push.
+name: Refresh Data
+
+on:
+  schedule:
+    # Daily, at an odd minute past the hour. Everything scheduled on the hour is
+    # queued together, so asking for :00 is asking to be run late.
+    - cron: "23 4 * * *"
+  # So that a city added to tools/locations.json reaches the map today rather than
+  # tomorrow.
+  workflow_dispatch:
+
+# data/contributors.json is the only file written, by the one step that commits.
+permissions:
+  contents: write
+
+# Two of these pushing the same file would be one of them rebasing or failing.
+concurrency:
+  group: refresh-data
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      # Empty unless the secret exists, which is what the last step tests: the
+      # rebuild is an extra, and the map must refresh with or without it. `secrets`
+      # cannot be read from a step's `if`, so it is lifted to the job here.
+      VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned rather than `lts/*`: the tools are run here and nowhere else,
+          # and a runner quietly moving to a new major is not something a daily
+          # unattended job should discover on its own.
+          #
+          # It is not the version Vercel builds with — Vercel is configured in its
+          # own dashboard, not in this repository — so the two can drift. Nothing
+          # here depends on them matching: this job runs the generator, and the
+          # build only reads the JSON it commits.
+          node-version: "24.3.0"
+
+      - name: Regenerate the contributor map
+        shell: bash
+        env:
+          # The default token, which is all this needs: public repositories, read
+          # only. `make contributors` falls back to `gh auth token` when it is
+          # unset, and there is no `gh` login on a runner.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          make contributors | tee /tmp/refresh.log
+
+          # The locations the table could not place, onto the run's summary page.
+          # They are the one thing here that needs a person: each is a line to add
+          # to tools/locations.json, and until then it is a contributor with no dot.
+          # A log nobody opens would be no notice at all.
+          if grep -q "not in tools/locations.json" /tmp/refresh.log; then
+            {
+              echo "### Locations missing from \`tools/locations.json\`"
+              echo
+              echo '```'
+              sed -n '/not in tools\/locations.json/,$p' /tmp/refresh.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Commit the new snapshot
+        id: commit
+        shell: bash
+        run: |
+          # tools/contributors.mjs leaves the file alone when only its `generated`
+          # date would have moved, so a quiet day is a clean tree here rather than
+          # a commit that changes one line and means nothing.
+          if git diff --quiet -- data/contributors.json; then
+            echo "no change to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh the contributor map" -- data/contributors.json
+          git push
+          # Read by the next step: this push is itself a Vercel deploy.
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Ask Vercel to rebuild
+        # Only when nothing was pushed. A push already rebuilds the site, star
+        # counts and all; this is for the ordinary day where the map has not moved
+        # but a repository has gained stars and nothing would otherwise go and look.
+        if: steps.commit.outputs.pushed != 'true' && env.VERCEL_DEPLOY_HOOK != ''
+        shell: bash
+        run: curl --fail --silent --show-error -X POST -d '{}' "$VERCEL_DEPLOY_HOOK"

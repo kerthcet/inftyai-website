@@ -11,7 +11,9 @@
 //
 // Usage: GITHUB_TOKEN=... node tools/contributors.mjs
 
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, utimes, writeFile } from "node:fs/promises";
+
+const TARGET = "data/contributors.json";
 
 // Machine accounts. They commit, but they are not contributors and should not be
 // counted as people.
@@ -26,6 +28,30 @@ const {
 // Where a city's name is drawn on the map when tools/locations.json does not say:
 // just to the right of its dot.
 const DEFAULT_LABEL = { dx: 11, dy: 4, anchor: "start" };
+
+// An alias in tools/locations.json is a string: the key whose entry it stands for.
+// Written out in full, every spelling of Shanghai carried its own copy of the
+// coordinates, so correcting one meant finding the rest — and the table is now
+// long enough that "the rest" is not visible on one screen.
+//
+// One hop, not a chain: an alias must name an entry, so there is no cycle to guard
+// against and no order to resolve in. Checked here rather than at the point of use,
+// because a typo in an alias for a city nobody has contributed from yet would
+// otherwise sit in the file until the day someone did.
+for (const [key, value] of Object.entries(known)) {
+  if (typeof value !== "string" || key.startsWith("//")) continue;
+  const target = known[value];
+  if (target === undefined) {
+    exit(
+      `locations.json: alias ${JSON.stringify(key)} names a missing entry ${JSON.stringify(value)}`,
+    );
+  }
+  if (typeof target === "string") {
+    exit(
+      `locations.json: alias ${JSON.stringify(key)} names another alias ${JSON.stringify(value)} — point it at the entry itself`,
+    );
+  }
+}
 
 // The project list is data/projects.yaml's to own — the map should cover exactly
 // the projects the page shows. Read with a regex rather than a YAML parser to
@@ -92,7 +118,9 @@ for (const login of [...logins].sort()) {
     continue;
   }
 
-  const place = known[key];
+  // A string is an alias for another key; the loop above has already proved it
+  // resolves to an entry.
+  const place = typeof known[key] === "string" ? known[known[key]] : known[key];
   // An explicit null: a known non-place, already decided about.
   if (place === null) continue;
 
@@ -248,14 +276,40 @@ const output = {
   })),
 };
 
-await writeFile(
-  "data/contributors.json",
-  JSON.stringify(output, null, 2) + "\n",
-);
+// Same data as last time, only a newer date: the file is left exactly as it is.
+//
+// `generated` moves on every run, so writing unconditionally made every run a
+// change. That is a commit a week that says nothing once this is on a schedule
+// (.github/workflows/refresh-data.yaml), and locally it meant `make launch` left
+// the working tree dirty.
+//
+// The comparison neutralises the date rather than dropping it, so a run that does
+// find something new still stamps today.
+let previous = null;
+try {
+  previous = JSON.parse(await readFile(TARGET, "utf8"));
+} catch {
+  // Missing, or not readable as JSON. Either way it is about to be written.
+}
+const unchanged =
+  previous !== null &&
+  JSON.stringify({ ...output, generated: previous.generated }) ===
+    JSON.stringify(previous);
+
+if (unchanged) {
+  // The Makefile decides whether to refresh from this file's modification time, so
+  // it has to move even when the bytes do not — otherwise a file that is correct
+  // and a file that is a month stale look the same to it, and every `make` refetches.
+  const now = new Date();
+  await utimes(TARGET, now, now);
+} else {
+  await writeFile(TARGET, JSON.stringify(output, null, 2) + "\n");
+}
 
 console.log(
-  `\ndata/contributors.json: ${output.located} of ${output.total} contributors placed` +
-    ` in ${output.cities} cities across ${output.countryCount} countries`,
+  `\n${TARGET}: ${output.located} of ${output.total} contributors placed` +
+    ` in ${output.cities} cities across ${output.countryCount} countries` +
+    `${unchanged ? " (unchanged)" : ""}`,
 );
 
 // Printed rather than thrown: an unknown location costs one dot, and blocking the

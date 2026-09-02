@@ -353,6 +353,10 @@ $map-text: $gray-600;
 // ever scale a fill's own alpha down, so a translucent `fill` would leave the hover
 // state with no way to strengthen the ring.
 $map-halo-alpha-hover: 0.22;
+// The pulse ring at its brightest, which is the moment it leaves the dot. Under the
+// hover alpha on purpose: hovering has to stay the strongest ring on the map, or
+// pointing at a city says less than the city was already saying on its own.
+$map-pulse-alpha: 0.18;
 
 // Map and legend side by side from `lg` up, stacked below it. The breakpoint is
 // where the legend still has room for "Melbourne, Australia" and a count on one
@@ -483,6 +487,102 @@ $map-halo-alpha-hover: 0.22;
   stroke: var(--bs-body-bg, #fff);
   stroke-width: 2.5;
   transition: fill-opacity 0.2s ease;
+}
+
+// A slow ring leaving each dot, so the section reads as somewhere people are still
+// arriving rather than a diagram printed once.
+//
+// `transform: scale` rather than an animated `r`: `r` takes lengths, and every dot
+// has a different one, so each city would have needed keyframes of its own. A scale
+// factor is one animation for all of them.
+//
+// A factor is also why the template does not draw the ring at the dot's own radius:
+// scaling a small radius is a small journey, and the cities of one had almost no ring
+// to see. It averages the radius with a constant instead — see the note there. That
+// is the only place the pulse's size is decided; nothing below distinguishes one city
+// from another except its rhythm.
+.worldmap-pulse {
+  fill: $map-mark;
+  // Invisible at rest — the keyframes are the only thing that ever paints it. So on
+  // any browser that does not run the animation, and under reduced motion below,
+  // this is exactly the map it was before, rather than ten static rings.
+  fill-opacity: 0;
+  // The cursor belongs to the halo underneath.
+  pointer-events: none;
+  // Without `fill-box` the origin is the svg's, and every ring grows out of the
+  // top-left corner of the map instead of out of its own dot.
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  // The 3s is only a floor to fall back on: the duration and the delay are both set
+  // per dot further down, and every dot matches one of those rules.
+  animation: worldmap-pulse 3s ease-out infinite;
+}
+
+@keyframes worldmap-pulse {
+  // From just inside the dot, so the ring emerges from behind the 2.5-unit keyline
+  // rather than appearing on top of it.
+  0% {
+    transform: scale(0.9);
+    fill-opacity: 0;
+  }
+
+  20% {
+    fill-opacity: $map-pulse-alpha;
+  }
+
+  // Gone well before the cycle ends, and it holds there for the rest of it. A ring
+  // still visible at full size is a second halo, and a halo painted at rest is what
+  // merged Guangzhou and Shenzhen into one lozenge — see `.worldmap-halo` below.
+  // The pause is also what keeps this from reading as a strobe.
+  60%,
+  100% {
+    transform: scale(2);
+    fill-opacity: 0;
+  }
+}
+
+// Each dot keeps its own time. Two lists, because a different start is not enough:
+// with one shared duration, staggered delays only rotate a fixed order, and the eye
+// follows that around the map as a chase — the dots take turns instead of pulsing.
+// What breaks the order is the period, so every bucket gets a duration of its own as
+// well. None of them is a neat multiple of another, so the phases drift apart on the
+// first cycle and never line back up in anything like the time someone spends on the
+// page.
+//
+// Eleven buckets, assigned by position in the group. Eleven because it is more than
+// the map currently has dots, so today no two share a rhythm; past that, two dots
+// eleven apart in data/contributors.json — which is ordered by count, not by
+// geography — will match, and that is the ceiling of what CSS can do here. Per-dot
+// values would have to be inline `style` attributes, which the site's own
+// `style-src 'self'` refuses.
+//
+// The cost, stated plainly: independent rhythms mean neighbours sometimes pulse
+// together. Guangzhou and Shenzhen are 2.6 units apart and the fixed rotation this
+// replaced could guarantee they never overlapped. What makes that affordable is
+// that the rings are behind the dots and fade at 0.18 alpha, so a coincidence is a
+// moment of soft overlap and not a lozenge: the dots themselves, each with its own
+// keyline, stay countable throughout.
+// 5.2 in the tenth slot rather than 5.1, which is exactly 3.4 × 1.5: a pair in a
+// ratio that small returns to step every ten seconds, well inside the time someone
+// spends looking at the map.
+$map-pulse-cycles:
+  2.9s, 3.4s, 4.7s, 3.1s, 5.3s, 3.8s, 4.3s, 5.9s, 3.6s, 5.2s, 4.1s;
+$map-pulse-offsets:
+  0s, 1.9s, 0.6s, 3.2s, 1.2s, 4.4s, 2.4s, 0.3s, 3.9s, 1.6s, 2.9s;
+
+@for $i from 1 through length($map-pulse-cycles) {
+  .worldmap-place:nth-of-type(11n + #{$i}) .worldmap-pulse {
+    animation-duration: nth($map-pulse-cycles, $i);
+    animation-delay: nth($map-pulse-offsets, $i);
+  }
+}
+
+// Motion is not what any of this is for: every city is in a `<title>` tooltip and
+// the shares are the text list beside the map, so there is nothing here to lose.
+@media (prefers-reduced-motion: reduce) {
+  .worldmap-pulse {
+    animation: none;
+  }
 }
 
 // A soft ring around each dot, on hover only.
