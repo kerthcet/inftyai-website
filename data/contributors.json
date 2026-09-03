@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-03",
   "total": 52,
-  "located": 33,
+  "located": 35,
   "places": [
     {
       "label": "Shanghai, China",
@@ -17,6 +17,19 @@
       "count": 6
     },
     {
+      "label": "San Francisco, USA",
+      "country": "United States",
+      "lat": 37.77,
+      "lng": -122.42,
+      "short": "San Francisco",
+      "offset": {
+        "dx": 0,
+        "dy": -14,
+        "anchor": "start"
+      },
+      "count": 3
+    },
+    {
       "label": "India",
       "country": "India",
       "lat": 22,
@@ -25,7 +38,7 @@
       "short": "India",
       "offset": {
         "dx": 0,
-        "dy": 26,
+        "dy": 23,
         "anchor": "middle"
       },
       "count": 2
@@ -37,8 +50,8 @@
       "lng": 113.26,
       "short": "Guangzhou",
       "offset": {
-        "dx": -12,
-        "dy": 0,
+        "dx": -9,
+        "dy": 20,
         "anchor": "end"
       },
       "count": 2
@@ -70,27 +83,14 @@
       "count": 2
     },
     {
-      "label": "San Francisco, USA",
-      "country": "United States",
-      "lat": 37.77,
-      "lng": -122.42,
-      "short": "San Francisco",
-      "offset": {
-        "dx": 11,
-        "dy": 4,
-        "anchor": "start"
-      },
-      "count": 2
-    },
-    {
       "label": "Paris, France",
       "country": "France",
       "lat": 48.86,
       "lng": 2.35,
       "short": "Paris",
       "offset": {
-        "dx": 11,
-        "dy": 4,
+        "dx": 17,
+        "dy": 28,
         "anchor": "start"
       },
       "count": 1
@@ -142,7 +142,7 @@
       "short": "Dublin",
       "offset": {
         "dx": 0,
-        "dy": -13,
+        "dy": -11,
         "anchor": "middle"
       },
       "count": 1
@@ -167,9 +167,22 @@
       "lng": 0.12,
       "short": "Cambridge",
       "offset": {
-        "dx": -10,
-        "dy": 17,
+        "dx": -8,
+        "dy": 19,
         "anchor": "end"
+      },
+      "count": 1
+    },
+    {
+      "label": "Brisbane, Australia",
+      "country": "Australia",
+      "lat": -27.47,
+      "lng": 153.03,
+      "short": "Brisbane",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
       },
       "count": 1
     },
@@ -181,7 +194,7 @@
       "short": "Berlin",
       "offset": {
         "dx": 0,
-        "dy": -13,
+        "dy": -11,
         "anchor": "middle"
       },
       "count": 1
@@ -206,8 +219,8 @@
       "lng": -87.63,
       "short": "Chicago",
       "offset": {
-        "dx": 11,
-        "dy": 4,
+        "dx": 8,
+        "dy": 19,
         "anchor": "start"
       },
       "count": 1
@@ -245,9 +258,9 @@
       "lng": -122.14,
       "short": "Palo Alto",
       "offset": {
-        "dx": 0,
-        "dy": -13,
-        "anchor": "middle"
+        "dx": -12,
+        "dy": 23,
+        "anchor": "end"
       },
       "count": 1
     },
@@ -258,8 +271,8 @@
       "lng": 2.17,
       "short": "Barcelona",
       "offset": {
-        "dx": 11,
-        "dy": 4,
+        "dx": 0,
+        "dy": 22,
         "anchor": "start"
       },
       "count": 1
@@ -271,14 +284,14 @@
       "lng": 4.9,
       "short": "Amsterdam",
       "offset": {
-        "dx": 10,
-        "dy": 17,
+        "dx": 12,
+        "dy": 23,
         "anchor": "start"
       },
       "count": 1
     }
   ],
-  "cities": 20,
+  "cities": 21,
   "countryCount": 14,
   "regions": [
     {
@@ -288,8 +301,8 @@
     },
     {
       "name": "North America",
-      "count": 8,
-      "percent": 15
+      "count": 9,
+      "percent": 17
     },
     {
       "name": "Europe",
@@ -297,20 +310,20 @@
       "percent": 13
     },
     {
+      "name": "Oceania",
+      "count": 2,
+      "percent": 4
+    },
+    {
       "name": "South America",
       "count": 2,
       "percent": 4
     },
     {
-      "name": "Oceania",
-      "count": 1,
-      "percent": 2
-    },
-    {
       "name": "Others",
-      "count": 19,
+      "count": 17,
       "note": "Contributors whose GitHub profile does not say where they are.",
-      "percent": 37
+      "percent": 33
     }
   ]
 }
