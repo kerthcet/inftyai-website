@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-03",
-  "total": 45,
-  "located": 29,
+  "total": 52,
+  "located": 33,
   "places": [
     {
       "label": "Shanghai, China",
@@ -70,6 +70,32 @@
       "count": 2
     },
     {
+      "label": "San Francisco, USA",
+      "country": "United States",
+      "lat": 37.77,
+      "lng": -122.42,
+      "short": "San Francisco",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 2
+    },
+    {
+      "label": "Paris, France",
+      "country": "France",
+      "lat": 48.86,
+      "lng": 2.35,
+      "short": "Paris",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
+    },
+    {
       "label": "Sao Paulo, Brazil",
       "country": "Brazil",
       "lat": -23.55,
@@ -88,6 +114,19 @@
       "lat": 4.71,
       "lng": -74.07,
       "short": "Bogota",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
+    },
+    {
+      "label": "Toronto, Canada",
+      "country": "Canada",
+      "lat": 43.65,
+      "lng": -79.38,
+      "short": "Toronto",
       "offset": {
         "dx": 11,
         "dy": 4,
@@ -239,28 +278,28 @@
       "count": 1
     }
   ],
-  "cities": 17,
-  "countryCount": 12,
+  "cities": 20,
+  "countryCount": 14,
   "regions": [
     {
       "name": "Asia",
       "count": 15,
-      "percent": 33
-    },
-    {
-      "name": "Europe",
-      "count": 6,
-      "percent": 13
+      "percent": 29
     },
     {
       "name": "North America",
-      "count": 5,
-      "percent": 11
+      "count": 8,
+      "percent": 15
+    },
+    {
+      "name": "Europe",
+      "count": 7,
+      "percent": 13
     },
     {
       "name": "South America",
       "count": 2,
-      "percent": 5
+      "percent": 4
     },
     {
       "name": "Oceania",
@@ -269,9 +308,9 @@
     },
     {
       "name": "Others",
-      "count": 16,
+      "count": 19,
       "note": "Contributors whose GitHub profile does not say where they are.",
-      "percent": 36
+      "percent": 37
     }
   ]
 }
