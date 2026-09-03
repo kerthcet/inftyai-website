@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-01",
-  "total": 35,
-  "located": 19,
+  "generated": "2026-09-03",
+  "total": 45,
+  "located": 24,
   "places": [
     {
       "label": "Shanghai, China",
@@ -70,6 +70,32 @@
       "count": 2
     },
     {
+      "label": "Bogota, Colombia",
+      "country": "Colombia",
+      "lat": 4.71,
+      "lng": -74.07,
+      "short": "Bogota",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
+    },
+    {
+      "label": "Dublin, Ireland",
+      "country": "Ireland",
+      "lat": 53.35,
+      "lng": -6.26,
+      "short": "Dublin",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
+    },
+    {
       "label": "Chengdu, China",
       "country": "China",
       "lat": 30.57,
@@ -122,6 +148,19 @@
       "count": 1
     },
     {
+      "label": "Chicago, USA",
+      "country": "United States",
+      "lat": 41.88,
+      "lng": -87.63,
+      "short": "Chicago",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
+    },
+    {
       "label": "Los Angeles, USA",
       "country": "United States",
       "lat": 34.05,
@@ -133,36 +172,67 @@
         "anchor": "end"
       },
       "count": 1
+    },
+    {
+      "label": "Barcelona, Spain",
+      "country": "Spain",
+      "lat": 41.39,
+      "lng": 2.17,
+      "short": "Barcelona",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
+    },
+    {
+      "label": "Amsterdam, Netherlands",
+      "country": "Netherlands",
+      "lat": 52.37,
+      "lng": 4.9,
+      "short": "Amsterdam",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
     }
   ],
-  "cities": 9,
-  "countryCount": 6,
+  "cities": 14,
+  "countryCount": 10,
   "regions": [
     {
       "name": "Asia",
       "count": 15,
-      "percent": 43
+      "percent": 33
     },
     {
       "name": "Europe",
+      "count": 5,
+      "percent": 11
+    },
+    {
+      "name": "North America",
       "count": 2,
       "percent": 5
     },
     {
-      "name": "North America",
-      "count": 1,
-      "percent": 3
-    },
-    {
       "name": "Oceania",
       "count": 1,
-      "percent": 3
+      "percent": 2
+    },
+    {
+      "name": "South America",
+      "count": 1,
+      "percent": 2
     },
     {
       "name": "Others",
-      "count": 16,
+      "count": 21,
       "note": "Contributors whose GitHub profile does not say where they are.",
-      "percent": 46
+      "percent": 47
     }
   ]
 }
