@@ -138,7 +138,13 @@ $home-gap: clamp(2.5rem, 5.5vw, 4.5rem);
     //
     // Scaled, not fixed: the headline scales with the viewport too, and a flat
     // 3.5rem left 56px of air above a 20px headline on a phone.
-    padding-top: clamp(2rem, 4vw, 3.5rem);
+    //
+    // A quarter off the whole range — clamp(2rem, 4vw, 3.5rem) before — to sit the
+    // page nearer the navbar. Rendered, through the 0.9 above: 50.4px to 36px at
+    // 1440, 43.2 to 32.4 at 1200, 28.8 to 21.6 on a phone. The floor is what keeps
+    // the headline off the navbar on a narrow screen, so it comes down by the same
+    // proportion rather than to nothing.
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
     padding-bottom: $home-gap;
   }
 
@@ -387,7 +393,11 @@ $map-pulse-alpha: 0.18;
     // Wider than the stacked gap: side by side, the legend was close enough to the
     // eastern edge of the map to read as a column of the same graphic. A floor, not
     // a fixed value — `space-between` puts the leftover width here.
-    gap: 4rem;
+    //
+    // 4rem before. Reduced with the legend's own width to give the map more of the
+    // container; still well clear of the 2rem stacked gap, which is what stopped the
+    // legend reading as part of the graphic.
+    gap: 3rem;
   }
 }
 
@@ -437,9 +447,21 @@ $map-pulse-alpha: 0.18;
 .worldmap-label {
   display: none;
   fill: $map-text;
-  // 15 units against a 1000-unit width is about 12px at the `xl` breakpoint where
-  // the labels appear, and 13px on the widest screens.
-  font-size: 15px;
+  // 13.5 units against a 1000-unit width is about 11.4px at the `xl` breakpoint
+  // where the labels appear, and 12.4px on the widest screens.
+  //
+  // 15 before, and the 10% came off for room rather than for looks. These units are
+  // the map's, not the screen's, so a name's width in them is what decides whether
+  // it collides with the next one — and making the map bigger cannot help, because
+  // the names scale with it. Only shrinking them against the map does. At 22 marks
+  // the crowded spans are the six European cities inside 94 units and the four
+  // American ones inside 100, and this is the ~12% of those spans that buys the
+  // next few contributors somewhere to go.
+  //
+  // The floor is legibility on the narrowest screen that shows names at all, which
+  // is 11.4px at `xl` — the size the map already shipped at 1200px wide, so this is
+  // a size that has been read rather than a new gamble.
+  font-size: 13.5px;
   // Body weight. At 500 the names read as ten small headings competing with the
   // dots they belong to; they are captions.
   font-weight: 400;
@@ -621,7 +643,12 @@ $map-pulse-offsets:
     // line, and no wider — the map should keep the width it needs to stay readable.
     flex: 0 0 auto;
     width: auto;
-    min-width: 13rem;
+    // 13rem before. The container tops out at 1188px and the map takes what the
+    // legend and the gap leave, so this is the only width on the page the map can
+    // grow into: a rem off here and one off the gap put the map at 935px instead of
+    // 900. "North America" and its share still share one line — that is what sets
+    // the floor, and it is measured, not guessed.
+    min-width: 12rem;
   }
 }
 

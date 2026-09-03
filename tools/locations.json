@@ -841,6 +841,7 @@
     "san francisco, ca": "san francisco",
     "san francisco, california": "san francisco",
     "san francisco, usa": "san francisco",
+    "san francisco, california, united states": "san francisco",
     "sf": "san francisco",
     "bay area": "san francisco",
     "san francisco bay area": "san francisco",
@@ -886,6 +887,7 @@
     "sydney, australia": "sydney",
     "sydney, nsw": "sydney",
     "melbourne, australia": "melbourne",
+    "brisbane, australia": "brisbane",
     "auckland, new zealand": "auckland",
     "nz": "new zealand",
     "//not-places": "Real values from real profiles that no map can place.",
@@ -963,7 +965,7 @@
     "United States": "North America",
     "Vietnam": "Asia"
   },
-  "//labels": "Where each city's name is drawn relative to its dot, in viewBox units, keyed by label so aliases share one entry. Hand-placed because no automatic rule survives east Asia: Guangzhou and Shenzhen are 100km apart, which is 2.6 units at this scale, so their labels have to be pushed to opposite sides by someone looking at the result. Anything not listed defaults to `start` a little to the right. `anchor` is an SVG text-anchor: start places the text to the right of the dot, end to its left, middle centres it.",
+  "//labels": "Where each city's name is drawn relative to its dot, in viewBox units, keyed by label so aliases share one entry. Hand-placed because no automatic rule survives the two crowded corners of the map. Guangzhou and Shenzhen are 100km apart, which is 2.6 units at this scale, so one name goes below its dot and the other to the right; and Dublin, Cambridge, Amsterdam, Berlin and Minsk sit within 94 units of each other on one latitude, where 340 units of names have to be stacked onto separate rows above and below, with Barcelona taking the row under Amsterdam. Anything not listed defaults to `start` a little to the right. `anchor` is an SVG text-anchor: start places the text to the right of the dot, end to its left, middle centres it. A name reads as belonging to the dot nearest its anchored edge, so that is what a new entry has to get right — the dots in those two clusters are close enough that a name 20 units out can sit nearer a neighbour's dot than its own.",
   "labels": {
     "Shanghai, China": {
       "dx": 15,
@@ -976,8 +978,8 @@
       "anchor": "end"
     },
     "Guangzhou, China": {
-      "dx": -12,
-      "dy": 0,
+      "dx": -9,
+      "dy": 20,
       "anchor": "end"
     },
     "Shenzhen, China": {
@@ -992,17 +994,17 @@
     },
     "India": {
       "dx": 0,
-      "dy": 26,
+      "dy": 23,
       "anchor": "middle"
     },
     "Cambridge, UK": {
-      "dx": -10,
-      "dy": 17,
+      "dx": -8,
+      "dy": 19,
       "anchor": "end"
     },
     "Berlin, Germany": {
       "dx": 0,
-      "dy": -13,
+      "dy": -11,
       "anchor": "middle"
     },
     "Melbourne, Australia": {
@@ -1012,17 +1014,37 @@
     },
     "Dublin, Ireland": {
       "dx": 0,
-      "dy": -13,
+      "dy": -11,
       "anchor": "middle"
     },
     "Palo Alto, USA": {
-      "dx": 0,
-      "dy": -13,
-      "anchor": "middle"
+      "dx": -12,
+      "dy": 23,
+      "anchor": "end"
     },
     "Amsterdam, Netherlands": {
-      "dx": 10,
-      "dy": 17,
+      "dx": 12,
+      "dy": 23,
+      "anchor": "start"
+    },
+    "Barcelona, Spain": {
+      "dx": 0,
+      "dy": 22,
+      "anchor": "start"
+    },
+    "San Francisco, USA": {
+      "dx": 0,
+      "dy": -14,
+      "anchor": "start"
+    },
+    "Paris, France": {
+      "dx": 17,
+      "dy": 28,
+      "anchor": "start"
+    },
+    "Chicago, USA": {
+      "dx": 8,
+      "dy": 19,
       "anchor": "start"
     }
   }
