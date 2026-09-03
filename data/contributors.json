@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-03",
-  "total": 52,
-  "located": 35,
+  "total": 53,
+  "located": 36,
   "places": [
     {
       "label": "Shanghai, China",
@@ -174,6 +174,20 @@
       "count": 1
     },
     {
+      "label": "New Zealand",
+      "country": "New Zealand",
+      "lat": -41.5,
+      "lng": 172.5,
+      "countryOnly": true,
+      "short": "New Zealand",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1
+    },
+    {
       "label": "Brisbane, Australia",
       "country": "Australia",
       "lat": -27.47,
@@ -292,12 +306,12 @@
     }
   ],
   "cities": 21,
-  "countryCount": 14,
+  "countryCount": 15,
   "regions": [
     {
       "name": "Asia",
       "count": 15,
-      "percent": 29
+      "percent": 28
     },
     {
       "name": "North America",
@@ -311,8 +325,8 @@
     },
     {
       "name": "Oceania",
-      "count": 2,
-      "percent": 4
+      "count": 3,
+      "percent": 6
     },
     {
       "name": "South America",
@@ -323,7 +337,7 @@
       "name": "Others",
       "count": 17,
       "note": "Contributors whose GitHub profile does not say where they are.",
-      "percent": 33
+      "percent": 32
     }
   ]
 }
