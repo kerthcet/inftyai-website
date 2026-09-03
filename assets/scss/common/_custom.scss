@@ -138,7 +138,13 @@ $home-gap: clamp(2.5rem, 5.5vw, 4.5rem);
     //
     // Scaled, not fixed: the headline scales with the viewport too, and a flat
     // 3.5rem left 56px of air above a 20px headline on a phone.
-    padding-top: clamp(2rem, 4vw, 3.5rem);
+    //
+    // A quarter off the whole range — clamp(2rem, 4vw, 3.5rem) before — to sit the
+    // page nearer the navbar. Rendered, through the 0.9 above: 50.4px to 36px at
+    // 1440, 43.2 to 32.4 at 1200, 28.8 to 21.6 on a phone. The floor is what keeps
+    // the headline off the navbar on a narrow screen, so it comes down by the same
+    // proportion rather than to nothing.
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
     padding-bottom: $home-gap;
   }
 
