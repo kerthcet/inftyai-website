@@ -313,8 +313,8 @@ for (const [id, entry] of [...contributors].sort(([a], [b]) =>
   if (place === null) continue;
 
   // The mark whose card will list them. The label, because that is what identifies
-  // one mark on the map — and note that it can be a country-level fallback, which
-  // may not survive the pruning below.
+  // one mark on the map — and it can be a country-level fallback, which is a mark
+  // like any other and gets a card like any other.
   person.place = place.label;
 
   const existing = places.get(place.label);
@@ -334,29 +334,22 @@ for (const [id, entry] of [...contributors].sort(([a], [b]) =>
   located += 1;
 }
 
-// A country-level place is a fallback: it says "somewhere in this country", which
-// is worth drawing only while nothing better is known about that country. Once a
-// city there is on the map, the country's own mark goes — a blob over China beside
-// five Chinese cities reads as a sixth city that nobody lives in.
+// Every mark that was matched is drawn, country-level fallbacks included.
 //
-// Snapshot first, because everyone a dropped mark stood for still belongs to a
-// region: their country is known, only their position is not. Everything derived
-// below counts `matched` rather than `places`, and that is what holds the
-// percentages still while the map loses a mark.
+// This used to prune them: a country mark said "somewhere in this country", and once
+// a city there was on the map the country's own mark went, on the grounds that a blob
+// over China beside five Chinese cities reads as a sixth city that nobody lives in.
+// That is true of the blob and it was the wrong thing to weigh. The mark was not the
+// only thing dropped — the people it stood for went with it, off the card that names
+// them and into a region percentage, so writing "India" instead of "Bengaluru" was
+// enough to be counted and not shown. The contributors are the baseline here: a mark
+// exists to name whoever is under it, so no mark that has somebody under it is
+// dropped for the drawing's sake.
 //
-// Data-dependent, so it is reversible: if every contributor in a Chinese city left
-// and only a bare "China" remained, the country mark would come back. That is the
-// rule working, but it does mean the map can change shape from the contributor list
-// alone, with no edit to this file.
+// What is left of the blob problem is a label, and the label is the answer to it:
+// "India" beside a dot in the middle of India is not a city, and the card it opens
+// lists the people who wrote it that way.
 const matched = [...places.values()];
-const mappedCities = new Set(
-  matched.filter((place) => !place.countryOnly).map((place) => place.country),
-);
-for (const place of matched) {
-  if (place.countryOnly && mappedCities.has(place.country)) {
-    places.delete(place.label);
-  }
-}
 
 // The summary beside the map is by region, not by city or country. Ten cities was
 // a longer list than the map has dots worth explaining, and five of them were
@@ -426,22 +419,10 @@ for (const place of places.values()) {
   }
 }
 
-// Everyone the table placed in a country whose fallback mark was then pruned: located,
-// counted in their region's share, and on no dot — so no card lists them. Reported
-// because it is otherwise invisible, and because the fix is a line in
-// tools/locations.json for the city they are actually in.
-const orphaned = people.filter(
-  (person) => person.place && !places.has(person.place),
-);
-if (orphaned.length) {
-  console.log(
-    `\n${orphaned.length} contributor(s) matched a country-level mark that a city has` +
-      ` since replaced, so no card lists them:`,
-  );
-  for (const person of orphaned) {
-    console.log(`  ${person.login} (${person.place})`);
-  }
-}
+// Nobody the table placed is off the map any more: the report that used to stand here
+// listed the contributors whose country mark a city had replaced, and there is no
+// longer such a thing. Every located person is on the mark their `place` names, which
+// the check above proves mark by mark.
 
 // Shares of every contributor, as whole numbers that still add to 100.
 //
@@ -511,7 +492,8 @@ const output = {
   located,
   // One mark each on the map. Largest first, so the template draws the big dots
   // before the small ones and a city of one is never hidden underneath a city of
-  // six. Country-level fallbacks that have yielded to a city are already gone.
+  // six. A country-level fallback is one of these marks, drawn wherever somebody
+  // gave their country and no more than that.
   //
   // `people` is the card the mark opens: a handle and an avatar each, capped at ten
   // because the card is a panel floating over the map and a mark of thirty would cover
@@ -535,10 +517,9 @@ const output = {
   // fallback is a mark too. Only used by the map's accessible name, which called
   // India a city before this existed.
   cities: matched.filter((place) => !place.countryOnly).length,
-  // How many countries the located contributors are in — from `matched`, so a
-  // country whose fallback mark was dropped still counts. Not shown, but it is
-  // what the map's accessible name says, being more use to a screen reader than
-  // "4 regions".
+  // How many countries the located contributors are in, which is fewer than there
+  // are marks: six of these are American. Not shown, but it is what the map's
+  // accessible name says, being more use to a screen reader than "4 regions".
   countryCount: new Set(matched.map((p) => p.country)).size,
   // Regions plus the "Others" remainder: one row each in the summary. `count` is
   // not rendered — `percent` is — but it stays so the file can be checked against

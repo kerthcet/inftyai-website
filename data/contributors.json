@@ -54,9 +54,9 @@
       "lng": -122.42,
       "short": "San Francisco",
       "offset": {
-        "dx": 0,
-        "dy": -14,
-        "anchor": "start"
+        "dx": -11,
+        "dy": 4,
+        "anchor": "end"
       },
       "count": 3,
       "people": [
@@ -71,6 +71,31 @@
         {
           "login": "rohilvagarwal",
           "avatar": "https://avatars.githubusercontent.com/u/88454899?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "United States",
+      "country": "United States",
+      "lat": 39.5,
+      "lng": -98.35,
+      "countryOnly": true,
+      "short": "United States",
+      "offset": {
+        "dx": -11,
+        "dy": -8,
+        "anchor": "end"
+      },
+      "count": 2,
+      "people": [
+        {
+          "login": "awdemos",
+          "avatar": "https://avatars.githubusercontent.com/u/159745380?v=4&s=64"
+        },
+        {
+          "login": "twinsgeeks",
+          "avatar": "https://avatars.githubusercontent.com/u/261838102?v=4&s=64"
         }
       ],
       "more": 0
@@ -215,6 +240,31 @@
         {
           "login": "liangyuanpeng",
           "avatar": "https://avatars.githubusercontent.com/u/28711504?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "India",
+      "country": "India",
+      "lat": 22,
+      "lng": 79,
+      "countryOnly": true,
+      "short": "India",
+      "offset": {
+        "dx": -11,
+        "dy": 4,
+        "anchor": "end"
+      },
+      "count": 2,
+      "people": [
+        {
+          "login": "SanjanShiv",
+          "avatar": "https://avatars.githubusercontent.com/u/90202905?v=4&s=64"
+        },
+        {
+          "login": "VedantMadane",
+          "avatar": "https://avatars.githubusercontent.com/u/6527493?v=4&s=64"
         }
       ],
       "more": 0

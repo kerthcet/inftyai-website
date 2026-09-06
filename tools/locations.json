@@ -1026,9 +1026,9 @@
       "anchor": "end"
     },
     "India": {
-      "dx": 0,
-      "dy": 23,
-      "anchor": "middle"
+      "dx": -11,
+      "dy": 4,
+      "anchor": "end"
     },
     "Cambridge, UK": {
       "dx": -11,
@@ -1066,9 +1066,9 @@
       "anchor": "start"
     },
     "San Francisco, USA": {
-      "dx": 0,
-      "dy": -14,
-      "anchor": "start"
+      "dx": -11,
+      "dy": 4,
+      "anchor": "end"
     },
     "Paris, France": {
       "dx": 11,
@@ -1104,6 +1104,11 @@
       "dx": 11,
       "dy": 12,
       "anchor": "start"
+    },
+    "United States": {
+      "dx": -11,
+      "dy": -8,
+      "anchor": "end"
     }
   }
 }
