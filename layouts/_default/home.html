@@ -169,7 +169,20 @@
                         {{/* The place, and only the place. The count was here — "Shanghai,
                              China — 6 contributors" — and it said twice what the card
                              already shows: the faces below are the count, and the dot's
-                             size is what carries it on the map. */}}
+                             size is what carries it on the map.
+
+                             `.label` whole, in one format on one line. It was split on the
+                             comma for a while so the country could carry the lighter ink,
+                             and that put the comma on the city's side of the split, in the
+                             city's weight: the line read "Shanghai," and then "China"
+                             instead of reading "Shanghai, China".
+
+                             `.label` rather than `.short` plus `.country`, which are also
+                             here: `.label` is the one that carries the abbreviations the
+                             map is drawn with — "USA" and "UK" rather than "United States"
+                             and "United Kingdom" — and those are what fit on a line 13rem
+                             wide. A country-level mark like India is a label with no comma
+                             in it, and needs no case of its own. */}}
                         <p class="worldmap-city-head">{{ .label }}</p>
                         <ul class="worldmap-city-people">
                             {{ range .people -}}
@@ -181,7 +194,7 @@
                                      same fact to keep in step.
 
                                      The whole row is the link — avatar and handle both —
-                                     so the target is the 24px face and its name rather
+                                     so the target is the 20px face and its name rather
                                      than a line of 13px text. Same tab, like every other
                                      link on this page. */}}
                                 <a href="https://github.com/{{ .login }}">
@@ -192,7 +205,7 @@
                                          wraps. `lazy` and the `s=64` in the url are what
                                          keep 34 faces off the critical path — see
                                          tools/contributors.mjs. */}}
-                                    <img class="worldmap-avatar" src="{{ .avatar }}" alt="" width="24" height="24"
+                                    <img class="worldmap-avatar" src="{{ .avatar }}" alt="" width="20" height="20"
                                         loading="lazy" decoding="async">
                                     <span class="worldmap-city-login">{{ .login }}</span>
                                 </a>
@@ -212,7 +225,7 @@
                              thing this row knows. */}}
                         {{ with .more }}
                         <p class="worldmap-city-more">
-                            <svg class="worldmap-city-more-icon" width="24" height="24" viewBox="0 0 24 24"
+                            <svg class="worldmap-city-more-icon" width="20" height="20" viewBox="0 0 24 24"
                                 fill="currentColor" stroke="none" aria-hidden="true">
                                 <circle cx="6" cy="12" r="1.75" />
                                 <circle cx="12" cy="12" r="1.75" />
