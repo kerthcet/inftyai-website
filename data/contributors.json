@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-11",
-  "total": 56,
-  "located": 37,
+  "generated": "2026-09-06",
+  "total": 72,
+  "located": 47,
   "places": [
     {
       "label": "Shanghai, China",
@@ -14,7 +14,7 @@
         "dy": 5,
         "anchor": "start"
       },
-      "count": 6,
+      "count": 7,
       "people": [
         {
           "login": "cr7258",
@@ -35,6 +35,10 @@
         {
           "login": "rudeigerc",
           "avatar": "https://avatars.githubusercontent.com/u/18243819?v=4&s=64"
+        },
+        {
+          "login": "windsonsea",
+          "avatar": "https://avatars.githubusercontent.com/u/79828097?v=4&s=64"
         },
         {
           "login": "caozhuozi",
@@ -72,50 +76,49 @@
       "more": 0
     },
     {
-      "label": "India",
-      "country": "India",
-      "lat": 22,
-      "lng": 79,
-      "countryOnly": true,
-      "short": "India",
+      "label": "Barcelona, Spain",
+      "country": "Spain",
+      "lat": 41.39,
+      "lng": 2.17,
+      "short": "Barcelona",
       "offset": {
         "dx": 0,
-        "dy": 23,
-        "anchor": "middle"
+        "dy": 22,
+        "anchor": "start"
       },
       "count": 2,
       "people": [
         {
-          "login": "SanjanShiv",
-          "avatar": "https://avatars.githubusercontent.com/u/90202905?v=4&s=64"
+          "login": "guillemwilly",
+          "avatar": "https://avatars.githubusercontent.com/u/161842218?v=4&s=64"
         },
         {
-          "login": "VedantMadane",
-          "avatar": "https://avatars.githubusercontent.com/u/6527493?v=4&s=64"
+          "login": "vgmartinez",
+          "avatar": "https://avatars.githubusercontent.com/u/10614247?v=4&s=64"
         }
       ],
       "more": 0
     },
     {
-      "label": "Guangzhou, China",
-      "country": "China",
-      "lat": 23.13,
-      "lng": 113.26,
-      "short": "Guangzhou",
+      "label": "London, UK",
+      "country": "United Kingdom",
+      "lat": 51.51,
+      "lng": -0.13,
+      "short": "London",
       "offset": {
-        "dx": -9,
-        "dy": 20,
-        "anchor": "end"
+        "dx": 0,
+        "dy": -28,
+        "anchor": "middle"
       },
       "count": 2,
       "people": [
         {
-          "login": "kenwoodjw",
-          "avatar": "https://avatars.githubusercontent.com/u/10386710?v=4&s=64"
+          "login": "jaedmunt",
+          "avatar": "https://avatars.githubusercontent.com/u/76647805?v=4&s=64"
         },
         {
-          "login": "Whitea029",
-          "avatar": "https://avatars.githubusercontent.com/u/145814986?v=4&s=64"
+          "login": "metrofun",
+          "avatar": "https://avatars.githubusercontent.com/u/946519?v=4&s=64"
         }
       ],
       "more": 0
@@ -145,6 +148,54 @@
       "more": 0
     },
     {
+      "label": "Guangzhou, China",
+      "country": "China",
+      "lat": 23.13,
+      "lng": 113.26,
+      "short": "Guangzhou",
+      "offset": {
+        "dx": -9,
+        "dy": 20,
+        "anchor": "end"
+      },
+      "count": 2,
+      "people": [
+        {
+          "login": "kenwoodjw",
+          "avatar": "https://avatars.githubusercontent.com/u/10386710?v=4&s=64"
+        },
+        {
+          "login": "Whitea029",
+          "avatar": "https://avatars.githubusercontent.com/u/145814986?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "Cambridge, UK",
+      "country": "United Kingdom",
+      "lat": 52.2,
+      "lng": 0.12,
+      "short": "Cambridge",
+      "offset": {
+        "dx": -11,
+        "dy": 15,
+        "anchor": "end"
+      },
+      "count": 2,
+      "people": [
+        {
+          "login": "kerthcet",
+          "avatar": "https://avatars.githubusercontent.com/u/18364341?v=4&s=64"
+        },
+        {
+          "login": "ky-hiverge",
+          "avatar": "https://avatars.githubusercontent.com/u/218585409?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
       "label": "Shenzhen, China",
       "country": "China",
       "lat": 22.54,
@@ -164,47 +215,6 @@
         {
           "login": "liangyuanpeng",
           "avatar": "https://avatars.githubusercontent.com/u/28711504?v=4&s=64"
-        }
-      ],
-      "more": 0
-    },
-    {
-      "label": "South Africa",
-      "country": "South Africa",
-      "lat": -29,
-      "lng": 24.7,
-      "countryOnly": true,
-      "short": "South Africa",
-      "offset": {
-        "dx": 11,
-        "dy": 4,
-        "anchor": "start"
-      },
-      "count": 1,
-      "people": [
-        {
-          "login": "AbdulDavids",
-          "avatar": "https://avatars.githubusercontent.com/u/125186956?v=4&s=64"
-        }
-      ],
-      "more": 0
-    },
-    {
-      "label": "Paris, France",
-      "country": "France",
-      "lat": 48.86,
-      "lng": 2.35,
-      "short": "Paris",
-      "offset": {
-        "dx": 17,
-        "dy": 28,
-        "anchor": "start"
-      },
-      "count": 1,
-      "people": [
-        {
-          "login": "ThibautMelen",
-          "avatar": "https://avatars.githubusercontent.com/u/20891897?v=4&s=64"
         }
       ],
       "more": 0
@@ -250,6 +260,27 @@
       "more": 0
     },
     {
+      "label": "Romania",
+      "country": "Romania",
+      "lat": 45.9,
+      "lng": 25,
+      "countryOnly": true,
+      "short": "Romania",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "damienen",
+          "avatar": "https://avatars.githubusercontent.com/u/44813558?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
       "label": "Toronto, Canada",
       "country": "Canada",
       "lat": 43.65,
@@ -276,9 +307,9 @@
       "lng": -6.26,
       "short": "Dublin",
       "offset": {
-        "dx": 0,
-        "dy": -11,
-        "anchor": "middle"
+        "dx": -11,
+        "dy": 4,
+        "anchor": "end"
       },
       "count": 1,
       "people": [
@@ -310,21 +341,21 @@
       "more": 0
     },
     {
-      "label": "Cambridge, UK",
-      "country": "United Kingdom",
-      "lat": 52.2,
-      "lng": 0.12,
-      "short": "Cambridge",
+      "label": "Kuala Lumpur, Malaysia",
+      "country": "Malaysia",
+      "lat": 3.14,
+      "lng": 101.69,
+      "short": "Kuala Lumpur",
       "offset": {
-        "dx": -8,
-        "dy": 19,
-        "anchor": "end"
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
       },
       "count": 1,
       "people": [
         {
-          "login": "kerthcet",
-          "avatar": "https://avatars.githubusercontent.com/u/18364341?v=4&s=64"
+          "login": "heiwen",
+          "avatar": "https://avatars.githubusercontent.com/u/3409733?v=4&s=64"
         }
       ],
       "more": 0
@@ -391,6 +422,47 @@
       "more": 0
     },
     {
+      "label": "Italy",
+      "country": "Italy",
+      "lat": 42.8,
+      "lng": 12.6,
+      "countryOnly": true,
+      "short": "Italy",
+      "offset": {
+        "dx": 11,
+        "dy": 9,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "nicoloboschi",
+          "avatar": "https://avatars.githubusercontent.com/u/23314389?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "Bengaluru, India",
+      "country": "India",
+      "lat": 12.97,
+      "lng": 77.59,
+      "short": "Bengaluru",
+      "offset": {
+        "dx": 0,
+        "dy": 19,
+        "anchor": "middle"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "pranshuchittora",
+          "avatar": "https://avatars.githubusercontent.com/u/32242596?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
       "label": "Melbourne, Australia",
       "country": "Australia",
       "lat": -37.81,
@@ -417,9 +489,9 @@
       "lng": -87.63,
       "short": "Chicago",
       "offset": {
-        "dx": 8,
-        "dy": 19,
-        "anchor": "start"
+        "dx": 0,
+        "dy": -17,
+        "anchor": "middle"
       },
       "count": 1,
       "people": [
@@ -451,6 +523,26 @@
       "more": 0
     },
     {
+      "label": "Cleveland, USA",
+      "country": "United States",
+      "lat": 41.5,
+      "lng": -81.69,
+      "short": "Cleveland",
+      "offset": {
+        "dx": 11,
+        "dy": 12,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "santoshkumarradha",
+          "avatar": "https://avatars.githubusercontent.com/u/29346072?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
       "label": "Minsk, Belarus",
       "country": "Belarus",
       "lat": 53.9,
@@ -466,6 +558,26 @@
         {
           "login": "svalench",
           "avatar": "https://avatars.githubusercontent.com/u/20963370?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "Paris, France",
+      "country": "France",
+      "lat": 48.86,
+      "lng": 2.35,
+      "short": "Paris",
+      "offset": {
+        "dx": 11,
+        "dy": 8,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "ThibautMelen",
+          "avatar": "https://avatars.githubusercontent.com/u/20891897?v=4&s=64"
         }
       ],
       "more": 0
@@ -491,34 +603,14 @@
       "more": 0
     },
     {
-      "label": "Barcelona, Spain",
-      "country": "Spain",
-      "lat": 41.39,
-      "lng": 2.17,
-      "short": "Barcelona",
-      "offset": {
-        "dx": 0,
-        "dy": 22,
-        "anchor": "start"
-      },
-      "count": 1,
-      "people": [
-        {
-          "login": "vgmartinez",
-          "avatar": "https://avatars.githubusercontent.com/u/10614247?v=4&s=64"
-        }
-      ],
-      "more": 0
-    },
-    {
       "label": "Amsterdam, Netherlands",
       "country": "Netherlands",
       "lat": 52.37,
       "lng": 4.9,
       "short": "Amsterdam",
       "offset": {
-        "dx": 12,
-        "dy": 23,
+        "dx": 11,
+        "dy": -25,
         "anchor": "start"
       },
       "count": 1,
@@ -529,46 +621,61 @@
         }
       ],
       "more": 0
+    },
+    {
+      "label": "Tampa, USA",
+      "country": "United States",
+      "lat": 27.95,
+      "lng": -82.46,
+      "short": "Tampa",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "zwright8",
+          "avatar": "https://avatars.githubusercontent.com/u/24713584?v=4&s=64"
+        }
+      ],
+      "more": 0
     }
   ],
-  "cities": 21,
-  "countryCount": 16,
+  "cities": 26,
+  "countryCount": 18,
   "regions": [
     {
       "name": "Asia",
-      "count": 15,
-      "percent": 27
-    },
-    {
-      "name": "North America",
-      "count": 9,
-      "percent": 16
+      "count": 18,
+      "percent": 25
     },
     {
       "name": "Europe",
-      "count": 7,
-      "percent": 12
+      "count": 13,
+      "percent": 18
+    },
+    {
+      "name": "North America",
+      "count": 11,
+      "percent": 15
     },
     {
       "name": "Oceania",
       "count": 3,
-      "percent": 5
+      "percent": 4
     },
     {
       "name": "South America",
       "count": 2,
-      "percent": 4
-    },
-    {
-      "name": "Africa",
-      "count": 1,
-      "percent": 2
+      "percent": 3
     },
     {
       "name": "Others",
-      "count": 19,
+      "count": 25,
       "note": "Contributors whose GitHub profile does not say where they are.",
-      "percent": 34
+      "percent": 35
     }
   ]
 }
