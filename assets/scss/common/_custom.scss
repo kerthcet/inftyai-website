@@ -344,8 +344,9 @@ $feature-gap: 1.25rem;
 // keyline that rings each dot, 1.9:1 against the land. WCAG 2.1 asks 3:1 of a
 // graphic needed to understand the content, and this no longer meets it. What makes
 // that a considered trade rather than an oversight is that nothing here is only on
-// the map: every city is in the `<title>` tooltip, and the region shares are the
-// text list beside it. Going back to 72% (#E47351) restores 3.1:1 on the keyline.
+// the map: every city is named in the card that opens on its dot, along with the
+// people who are there, and the region shares are the text list beside it. Going
+// back to 72% (#E47351) restores 3.1:1 on the keyline.
 $map-land: #e9edf2;
 $map-mark: mix($primary, #fff, 52%);
 // City labels and the legend's figures. Lighter than the body ink, which made both
@@ -354,10 +355,10 @@ $map-mark: mix($primary, #fff, 52%);
 // background behind their own glyphs (see `paint-order` below), and the legend sits
 // off the map entirely. 4.7:1 on white, so AA at their size.
 $map-text: $gray-600;
-// The halo is invisible at rest and appears on hover, so its alpha lives in
-// `fill-opacity` rather than in the colour: `fill-opacity` clamps at 1 and can only
-// ever scale a fill's own alpha down, so a translucent `fill` would leave the hover
-// state with no way to strengthen the ring.
+// The ring around a hovered dot, which is html rather than svg now — it belongs to the
+// hover target in `.worldmap-hits`, so this is what its pseudo-element fades up to.
+// The alpha is here and not in the colour because the ring is the mark's own hue: one
+// variable holds how strong the ring gets, `$map-mark` holds what colour it is.
 $map-halo-alpha-hover: 0.22;
 // The pulse ring at its brightest, which is the moment it leaves the dot. Under the
 // hover alpha on purpose: hovering has to stay the strongest ring on the map, or
@@ -408,6 +409,10 @@ $map-pulse-alpha: 0.18;
   max-width: 56rem;
   width: 100%;
   margin-inline: auto;
+  // What `.worldmap-hits` is positioned against. The figure holds nothing but the
+  // svg, so its content box is the svg's box — which is what lets the percentages in
+  // the generated stylesheet land the hover targets on the dots.
+  position: relative;
 }
 
 // In the row, the map takes exactly what the legend and the gap leave. Everything
@@ -508,7 +513,9 @@ $map-pulse-alpha: 0.18;
   // lozenge without it — this is what makes them countable.
   stroke: var(--bs-body-bg, #fff);
   stroke-width: 2.5;
-  transition: fill-opacity 0.2s ease;
+  // Nothing transitions here. A `fill-opacity` transition used to, from when hovering
+  // a dot dimmed it; the hover state is the ring and the card now, and the dot itself
+  // never changes.
 }
 
 // A slow ring leaving each dot, so the section reads as somewhere people are still
@@ -529,7 +536,7 @@ $map-pulse-alpha: 0.18;
   // any browser that does not run the animation, and under reduced motion below,
   // this is exactly the map it was before, rather than ten static rings.
   fill-opacity: 0;
-  // The cursor belongs to the halo underneath.
+  // The cursor belongs to the hover target in the html layer above.
   pointer-events: none;
   // Without `fill-box` the origin is the svg's, and every ring grows out of the
   // top-left corner of the map instead of out of its own dot.
@@ -554,7 +561,7 @@ $map-pulse-alpha: 0.18;
 
   // Gone well before the cycle ends, and it holds there for the rest of it. A ring
   // still visible at full size is a second halo, and a halo painted at rest is what
-  // merged Guangzhou and Shenzhen into one lozenge — see `.worldmap-halo` below.
+  // merged Guangzhou and Shenzhen into one lozenge — see `.worldmap-hit::before`.
   // The pause is also what keeps this from reading as a strobe.
   60%,
   100% {
@@ -599,34 +606,271 @@ $map-pulse-offsets:
   }
 }
 
-// Motion is not what any of this is for: every city is in a `<title>` tooltip and
-// the shares are the text list beside the map, so there is nothing here to lose.
+// Motion is not what any of this is for: every city's name, count and contributors are
+// in the card that opens on its dot and the shares are the text list beside the map, so
+// there is nothing here to lose.
 @media (prefers-reduced-motion: reduce) {
   .worldmap-pulse {
     animation: none;
   }
 }
 
-// A soft ring around each dot, on hover only.
-//
-// Painted at rest it was the thing that merged the east-Asian cluster back
-// together, so at rest it does no more than widen the hit target to 2.1x the dot's
-// radius — worth having when the smallest dot is 6 units in a 1000-unit box.
-// `pointer-events: all` because the default `visiblePainted` will not hit-test a
-// fill this transparent.
-.worldmap-halo {
-  fill: $map-mark;
-  fill-opacity: 0;
-  pointer-events: all;
-  transition: fill-opacity 0.2s ease;
+// The hover targets, one per mark, on top of the svg. Positions and sizes come from
+// the stylesheet generated in layouts/partials/head/resource-hints.html; everything
+// is the same for all of them is here.
+.worldmap-hits {
+  position: absolute;
+  inset: 0;
+  // The dots and labels underneath are what this layer is a target for; it paints
+  // nothing itself except the halo on hover.
+  pointer-events: none;
+  // So a card can be measured against the map rather than the page: this makes the
+  // layer — which is the svg's own box — a query container, and `cqw` in the card
+  // below then means one percent of the map's width. Inline size only, so nothing
+  // here depends on the layer's height. It clips nothing: cards still overflow the
+  // figure, which is what `paint` containment would have stopped and this does not
+  // ask for.
+  container-type: inline-size;
 }
 
-// Hovering lifts a dot clear of its neighbours while the browser shows the
-// `<title>` as a tooltip — the only way to tell two overlapping cities apart.
-.worldmap-place:hover {
-  .worldmap-halo {
-    fill-opacity: $map-halo-alpha-hover;
+.worldmap-hit {
+  position: absolute;
+  // `left` and `top` from the generated stylesheet are the dot's centre.
+  transform: translate(-50%, -50%);
+  // With `width` set per mark, this is the square the old svg halo's circle is drawn
+  // in — see `::before` below, which is the round part.
+  aspect-ratio: 1;
+  // Square rather than round on purpose, now that the card holds links that have to be
+  // reached with a pointer. Hit testing honours `border-radius`, so a circle here left
+  // the corners transparent to the pointer, and the walk from the dot to its card
+  // crossed them: hover was lost halfway and the card closed under the cursor. A
+  // square box shares its whole near edge with the card, which starts at `100%` with
+  // no gap, so the path in is continuous at every height. It costs the corners of the
+  // target — invisible either way, since the ring below is still a circle.
+  // Back on, against the layer's `none` above.
+  pointer-events: auto;
+  cursor: default;
+
+  // The soft ring around a hovered dot. Painted at rest it was the thing that merged
+  // the east-Asian cluster into one lozenge, so it appears only on hover — and it is
+  // the mark's own colour at 22%, over a dot of the same colour at full strength, so
+  // it rings the dot without touching how the dot itself reads.
+  //
+  // A pseudo-element and not this div's own background, which is where this started
+  // and which rendered the card at 22% as well: `opacity` applies to an element's
+  // whole subtree and makes it one composited layer, so a 0.22 halo took its card
+  // down with it — under the map, faded, unreadable. The halo needed to fade; the
+  // thing it belongs to did not.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: $map-mark;
+    opacity: 0;
+    transition: opacity 0.2s ease;
   }
+}
+
+// Hovering lifts a dot clear of its neighbours while its card is open — the only way
+// to tell two overlapping cities apart.
+.worldmap-hit:hover::before,
+.worldmap-hit:focus-visible::before {
+  opacity: $map-halo-alpha-hover;
+}
+
+// The mark being read owns the pointer, over every other mark's target. These are
+// absolutely positioned siblings, so the later one in the document was on top: walking
+// from Shanghai's dot to Shanghai's card crossed Chengdu's target — one square of some
+// 15px, at nearly the same latitude and directly under the path — and Chengdu, being
+// later, took the hover. Shanghai's card closed and Chengdu's opened, halfway to a link
+// that was about to be clicked. Only while hovered or held: at rest the marks are in
+// document order, so nothing about which dot is on top of which has changed.
+.worldmap-hit:hover,
+.worldmap-hit:focus-within {
+  z-index: 4;
+}
+
+// The ring is the focus indicator's job here too, but on its own it is a 22% wash
+// that would not pass for one, so focus also gets an outline. On the card's side
+// rather than the dot's, because the dot is 5px across at its smallest.
+.worldmap-hit:focus-visible {
+  outline: 2px solid $map-mark;
+  outline-offset: 2px;
+}
+
+// Who is at this mark: up to ten handles with their avatars, each a link to the
+// profile, under the city's name — which is what the dots' native `<title>` tooltip
+// used to carry, before this layer took the pointer.
+//
+// CSS only, on `:hover` and `:focus-within`. Every card is already in the page, so
+// this is a selector rather than a listener and it works with JavaScript off. The
+// price is that nothing can measure the viewport and flip a card that would fall off
+// the edge, which is why the side each one opens on is decided in the template from
+// the city's own longitude.
+.worldmap-city {
+  position: absolute;
+  z-index: 3;
+  // Beside the dot, and clear of the halo: the target is 2.1 radii wide, so `100%` here
+  // is already past the ring rather than past the dot.
+  //
+  // Flush against it, with no gap. There was a 0.25rem one, and it was 4px of dead
+  // space between the dot and its own card: the pointer crossing it lost the hover and
+  // the card began to close, which was survivable while nothing in the card could be
+  // clicked and is not now. The ring is a circle inside a square box, so it still meets
+  // the card's edge only at the centre line — the gap is gone from the hit testing, not
+  // from the picture.
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  // 13rem where the map has room for it, and no wider than the room the mark actually
+  // has where it does not. `--map-room` is set per mark by the generated stylesheet:
+  // the percentage of the map's width between this dot and the edge the card opens
+  // towards, and `1cqw` is one percent of that width (see `.worldmap-hits`). The
+  // 0.25rem is slack, so the widest cards stop just short of the map's edge rather
+  // than exactly on it.
+  //
+  // The fixed width is declared first and deliberately kept: it is what a browser
+  // without container query units falls back to, which is where every card was before
+  // this line. Only narrow screens are affected either way — at 1440 a card in the
+  // middle of the map has some 460px of room, so the `min()` picks 13rem and nothing
+  // changes. It is 320px where it earns its place: cards there ran up to 34px past
+  // the map's edge, and one of them gave the page a horizontal scrollbar.
+  //
+  // Interpolated because Sass reads a bare `min()` as its own function and rejects a
+  // `calc()` of units it cannot resolve; wrapped like this it is passed through as the
+  // CSS it is.
+  width: 13rem;
+  width: #{"min(13rem, calc(var(--map-room, 100) * 1cqw - 0.25rem))"};
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  // Opaque: it sits on the map, and a tint would leave coastlines running through
+  // the faces.
+  background: var(--bs-body-bg, #fff);
+  border: 1px solid $map-land;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+  // Text sized against the page, not the map: this is html, so unlike the city
+  // labels in the svg it does not shrink with the viewBox.
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  // `visibility` is discrete — given a duration it flips at the halfway point, which
+  // showed the card at half a fade. Switched with a delay instead, held to the end of
+  // the fade out here and dropped to zero in the rule that opens the card.
+  transition:
+    opacity 0.15s ease,
+    visibility 0s linear 0.15s;
+  // The card takes the pointer, because the handles in it are links and a panel you
+  // cannot reach the links in is not one. This was `none` — a card was a panel about
+  // the dot and nothing more, so that a card lying over a neighbouring dot could not
+  // take that dot's hover. That is the cost now paid: a card covering a neighbour
+  // shadows it for as long as it is open, and since it closes when the pointer leaves
+  // it, the neighbour needs one more move of the mouse to answer. Only ever a
+  // neighbour of the city you are already reading, and only while you are reading it.
+  pointer-events: auto;
+}
+
+// East of the middle, the card opens the other way — see the template.
+.worldmap-hit-left .worldmap-city {
+  left: auto;
+  right: 100%;
+}
+
+.worldmap-hit:hover .worldmap-city,
+.worldmap-hit:focus-within .worldmap-city {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.15s ease,
+    visibility 0s;
+}
+
+.worldmap-city-head {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.worldmap-city-people {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    padding: 0.125rem 0;
+  }
+
+  // The link is the row, not a word in it: the face and the handle are one target, and
+  // the flexbox that used to be the `li` lives here so the target is the whole line
+  // rather than 13px of text.
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    // Ink, not link colour. Ten orange handles inside a small white card over a map of
+    // orange dots would have been the loudest thing in the section, and every row here
+    // is a link — so nothing is distinguished by colouring them all. What marks them is
+    // the underline on hover and the cursor, which is what a row this size can carry.
+    color: inherit;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    // Keyboard reaches these: the card opens on `:focus-within`, so tabbing into it is
+    // how it is read without a pointer, and each row has to say which one it is on.
+    &:focus-visible {
+      outline: 2px solid $map-mark;
+      outline-offset: 2px;
+      border-radius: 0.25rem;
+    }
+  }
+}
+
+.worldmap-avatar {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  // Hotlinked from avatars.githubusercontent.com, which the site's own CSP allows
+  // (`img-src`). A missing or slow avatar leaves a grey circle rather than a gap
+  // that moves the handle beside it.
+  background: $map-land;
+}
+
+.worldmap-city-login {
+  // Truncated rather than wrapped: a long handle would otherwise push the row's
+  // height out and leave the column of faces uneven.
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// What the cap leaves out. Lighter than the handles, because it is not one of them —
+// and laid out like them, so the ellipsis sits in the column the faces are in and the
+// row continues the list instead of annotating it.
+.worldmap-city-more {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.125rem 0 0;
+  padding: 0.125rem 0;
+  font-size: 0.75rem;
+  color: $map-text;
+}
+
+// Standing in for the avatar that would have been here: same 24px circle, the map's own
+// land as its fill, so the column of faces continues to the end of the card.
+.worldmap-city-more-icon {
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: $map-land;
 }
 
 // The legend beside the map: each region and its share of all contributors.

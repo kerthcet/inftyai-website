@@ -124,6 +124,12 @@ async function githubAll(path) {
 // seven — which is nothing against the hourly limit, and the per-contributor profile
 // lookups below already dwarf it.
 const logins = new Set();
+// How much each person has done, for the panel the legend opens on hover. Both come
+// out of the commit pages that are already being read for the headcount, so the
+// ranking costs no extra requests — which is the only reason it is commit-based
+// rather than something the API would have to be asked for separately.
+const commitsBy = new Map();
+const reposBy = new Map();
 for (const repo of repos) {
   const commits = await githubAll(`repos/${repo}/commits?per_page=100`);
   const seen = new Set();
@@ -141,11 +147,23 @@ for (const repo of repos) {
     if (EXCLUDE.has(author.login.toLowerCase())) continue;
     seen.add(author.login);
     logins.add(author.login);
+    commitsBy.set(author.login, (commitsBy.get(author.login) ?? 0) + 1);
+    if (!reposBy.has(author.login)) reposBy.set(author.login, new Set());
+    reposBy.get(author.login).add(repo);
   }
   console.log(
     `${repo}: ${seen.size} contributors across ${commits.length} commits` +
       (unattributed ? ` (${unattributed} by no GitHub account)` : ""),
   );
+}
+
+// `?s=` on an avatar URL asks GitHub for that many pixels square. Set through the
+// URL rather than appended, so this cannot depend on the `?v=4` that happens to be
+// on every avatar_url today.
+function sized(url, size) {
+  const parsed = new URL(url);
+  parsed.searchParams.set("s", String(size));
+  return parsed.toString();
 }
 
 // Lowercased, trimmed, and with one space after each comma, so "Shenzhen,China",
@@ -157,8 +175,32 @@ const places = new Map();
 const unmatched = new Map();
 let located = 0;
 
+// Everyone, whether or not they could be placed — the card on each mark is built
+// from this, matched back to its place below.
+const people = [];
+
 for (const login of [...logins].sort()) {
-  const { location } = await github(`users/${login}`);
+  const { location, avatar_url: avatar } = await github(`users/${login}`);
+
+  // `place` stays null until one is matched, and a null is somebody no card will
+  // ever list: no location, a location the table has not learned, and a known
+  // non-place like "Remote" all end up here, which is exactly the set that
+  // `total - located` counts.
+  const person = {
+    login,
+    // Requested at a size rather than at whatever GitHub's default is (460px): the
+    // card draws these at 24px, and 23 cards' worth of full-size avatars is most of
+    // a megabyte to show a few dozen faces the size of a full stop.
+    avatar: sized(avatar, 64),
+    // Only the ranking, and only until the sort below — neither number reaches
+    // data/contributors.json. The card shows a face and a handle; a commit count
+    // beside them invited a reading of the map as a scoreboard.
+    commits: commitsBy.get(login) ?? 0,
+    repos: reposBy.get(login)?.size ?? 0,
+    place: null,
+  };
+  people.push(person);
+
   if (!location || !location.trim()) continue;
 
   const key = normalise(location);
@@ -172,6 +214,11 @@ for (const login of [...logins].sort()) {
   const place = typeof known[key] === "string" ? known[known[key]] : known[key];
   // An explicit null: a known non-place, already decided about.
   if (place === null) continue;
+
+  // The mark whose card will list them. The label, because that is what identifies
+  // one mark on the map — and note that it can be a country-level fallback, which
+  // may not survive the pruning below.
+  person.place = place.label;
 
   const existing = places.get(place.label);
   if (existing) {
@@ -235,6 +282,68 @@ for (const place of matched) {
     );
   }
   regionCounts.set(region, (regionCounts.get(region) ?? 0) + place.count);
+}
+
+// Who is at each mark, for the card it opens. Ordered by commits, then by how many of
+// the seven projects they have touched, then by login so that two people with one
+// commit each do not swap places between runs.
+//
+// The order is all that survives: neither number is emitted. Commits are a rough
+// measure of activity and a poor thing to publish beside someone's face — a one-line
+// addition to Awesome-LLMOps counts the same as a feature in llmaz, and reviewing,
+// filing and answering count for nothing at all. They are a defensible way to decide
+// which ten faces a card has room for, and not much more than that.
+//
+// Ten, not the five this started at: five cut the largest city on the map short by one
+// face, which is a cap earning nothing. Ten clears every city today — the largest is
+// six — so the ordering above decides nothing at present and the cap is headroom. It is
+// still a cap because a card is a card: ten rows is already 300px of it, and a city that
+// ever passes ten is a city whose card has to say "and more" rather than grow.
+const TOP = 10;
+const placePeople = new Map();
+for (const person of people) {
+  if (!person.place) continue;
+  if (!placePeople.has(person.place)) placePeople.set(person.place, []);
+  placePeople.get(person.place).push(person);
+}
+for (const list of placePeople.values()) {
+  list.sort(
+    (a, b) =>
+      b.commits - a.commits ||
+      b.repos - a.repos ||
+      a.login.localeCompare(b.login),
+  );
+}
+
+// A mark's count and the people its card lists are arrived at separately — the count
+// by tallying places as they are matched, the card by grouping the people afterwards
+// — so they can disagree, and a card showing four faces on a dot drawn for six would
+// be a bug nobody would catch by looking at the map. Checked rather than assumed.
+for (const place of places.values()) {
+  const listed = placePeople.get(place.label)?.length ?? 0;
+  if (listed !== place.count) {
+    exit(
+      `${place.label} is drawn for ${place.count} contributor(s) but ${listed} are listed` +
+        ` — the dot and its card are counting different things`,
+    );
+  }
+}
+
+// Everyone the table placed in a country whose fallback mark was then pruned: located,
+// counted in their region's share, and on no dot — so no card lists them. Reported
+// because it is otherwise invisible, and because the fix is a line in
+// tools/locations.json for the city they are actually in.
+const orphaned = people.filter(
+  (person) => person.place && !places.has(person.place),
+);
+if (orphaned.length) {
+  console.log(
+    `\n${orphaned.length} contributor(s) matched a country-level mark that a city has` +
+      ` since replaced, so no card lists them:`,
+  );
+  for (const person of orphaned) {
+    console.log(`  ${person.login} (${person.place})`);
+  }
 }
 
 // Shares of every contributor, as whole numbers that still add to 100.
@@ -306,7 +415,25 @@ const output = {
   // One mark each on the map. Largest first, so the template draws the big dots
   // before the small ones and a city of one is never hidden underneath a city of
   // six. Country-level fallbacks that have yielded to a city are already gone.
-  places: [...places.values()].sort((a, b) => b.count - a.count),
+  //
+  // `people` is the card the mark opens: a handle and an avatar each, capped at ten
+  // because the card is a panel floating over the map and a mark of thirty would cover
+  // the continent it sits on. `more` is what stops the cap from quietly hiding
+  // the rest. Most marks are one person, so most cards are one face — that is the
+  // shape of the contributor list, not a limitation of the card.
+  places: [...places.values()]
+    .sort((a, b) => b.count - a.count)
+    .map((place) => {
+      const list = placePeople.get(place.label) ?? [];
+      return {
+        ...place,
+        people: list.slice(0, TOP).map(({ login, avatar }) => ({
+          login,
+          avatar,
+        })),
+        more: Math.max(0, list.length - TOP),
+      };
+    }),
   // Marks that are actually cities, which is not `len places`: a country-level
   // fallback is a mark too. Only used by the map's accessible name, which called
   // India a city before this existed.
@@ -319,6 +446,10 @@ const output = {
   // Regions plus the "Others" remainder: one row each in the summary. `count` is
   // not rendered — `percent` is — but it stays so the file can be checked against
   // itself: the counts sum to `total`, and the percents to 100.
+  //
+  // Shares only. The people are on the marks now, where the question "who is in
+  // Shanghai" is asked by pointing at Shanghai; a second list of them under a region
+  // heading was the same names twice, and the coarser of the two.
   regions: ranked.map((region, index) => ({
     ...region,
     percent: shares[index],

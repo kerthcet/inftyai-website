@@ -46,19 +46,19 @@
                 aria-label="{{ $summary }}." xmlns="http://www.w3.org/2000/svg">
                 <path class="worldmap-land" d="{{ $map.land }}" />
                 {{ range .places -}}
-                {{/* The projection tools/worldmap.mjs drew the land with,
-                     equirectangular so that it is these two lines rather than a
-                     JavaScript map library. */}}
-                {{ $x := mul $map.k (add .lng 180.0) -}}
-                {{ $y := mul $map.k (sub $map.latTop .lat) -}}
-                {{/* Area, not radius, carries the count: doubling the radius
+                {{/* Position and size, from the one place that computes them: the
+                     stylesheet generated in head/resource-hints.html has to put each
+                     card's hover target exactly on top of the dot drawn here, and
+                     two copies of this arithmetic would eventually disagree.
+
+                     Area, not radius, carries the count: doubling the radius
                      would draw a city of two as four times the city of one.
 
                      Strictly proportional area — 6·√count — is where this started,
                      and it drew Shanghai at a radius of 14.7 against 6 for a city
                      of one. Rendered, that is not a bigger dot, it is the subject
-                     of the map: six of thirty-five contributors took the eye and
-                     the other nine cities read as its outliers. So the area is
+                     of the map: six of the thirty-six contributors it can place took
+                     the eye and the other cities read as its outliers. So the area is
                      offset rather than proportional. The first contributor buys a
                      mark of a fixed size, and each one after adds half that mark's
                      area again — Shanghai lands at 11.2, still unmistakably the
@@ -66,9 +66,9 @@
 
                      That is a compressed scale and it should be said plainly:
                      these dots are comparable, not measurable. Nothing here rests
-                     on reading a count out of a radius — every city's exact number
-                     is in its `<title>` tooltip, and the shares are the text list
-                     beside the map.
+                     on reading a count out of a radius — the card that opens on a
+                     city lists who is there, so its exact number can be counted off
+                     the faces, and the shares are the text list beside the map.
 
                      The compression is at the top rather than in the base, because
                      the base is set from the narrowest case. These are viewBox
@@ -77,11 +77,19 @@
                      of 4 into 1.4 real pixels and lost the single-contributor
                      cities altogether. Scaling everything down to shrink Shanghai
                      would have spent them again. */}}
-                {{ $r := mul 6.0 (math.Sqrt (add 1.0 (mul 0.5 (sub .count 1)))) -}}
+                {{ $pos := partial "worldmap-place.html" (dict "map" $map "place" .) -}}
+                {{ $x := $pos.x -}}
+                {{ $y := $pos.y -}}
+                {{ $r := $pos.r -}}
                 <g class="worldmap-place">
-                    {{/* Native tooltip — no JS, and it works on the keyboard in
-                         the browsers that surface it. */}}
-                    <title>{{ .label }} — {{ .count }} contributor{{ if ne (int .count) 1 }}s{{ end }}</title>
+                    {{/* No `<title>` here any more. It was a native tooltip naming the
+                         city and its count, and the card in the layer below now sits
+                         over the dot, names the city and lists who is there — so
+                         the tooltip could no longer be triggered by a pointer that
+                         never reaches the svg, and a title nothing can open is worse
+                         than none. Nothing is lost to a screen reader either: this
+                         svg is a single `role="img"`, so child titles were never
+                         announced. */}}
                     {{/* The ring that pulses out of the dot. Grown by the stylesheet,
                          so one animation covers every size; first in the group, so it
                          passes under the dot rather than over the top of it.
@@ -99,14 +107,12 @@
                          the dot, and the ring only says the map is live — so the rings
                          can be closer in size than the counts are.
 
-                         Not the halo below, which is the hover target — scaling that
-                         would have made the tooltip's hit area breathe under the
-                         cursor. Decoration only, and it is nowhere in the
+                         Not the hover target, which is in the html layer below the
+                         svg — scaling that would have made the hit area breathe
+                         under the cursor. Decoration only, and it is nowhere in the
                          accessibility tree: the svg is a single `role="img"`. */}}
                     <circle class="worldmap-pulse" cx="{{ printf "%.1f" $x }}" cy="{{ printf "%.1f" $y }}"
                         r="{{ printf "%.1f" (div (add $r 13.0) 2.0) }}" />
-                    <circle class="worldmap-halo" cx="{{ printf "%.1f" $x }}" cy="{{ printf "%.1f" $y }}"
-                        r="{{ printf "%.1f" (mul $r 2.1) }}" />
                     <circle class="worldmap-dot" cx="{{ printf "%.1f" $x }}" cy="{{ printf "%.1f" $y }}"
                         r="{{ printf "%.1f" $r }}" />
                     {{/* Offsets come from tools/locations.json, hand-placed per
@@ -122,6 +128,103 @@
                 </g>
                 {{ end -}}
             </svg>
+
+            {{/* One hover target per mark, in html on top of the svg, each holding the
+                 card for its city. Nothing is drawn here that the svg does not
+                 already draw — the layer exists because a card cannot be html inside
+                 an svg, and an html card outside it cannot be positioned against a
+                 dot inside it. So the dot and its target are two elements over the
+                 same point, both placed from partials/worldmap-place.html.
+
+                 The coordinates are in a stylesheet generated in
+                 head/resource-hints.html, not in a `style` attribute here, which the
+                 site's own `style-src 'self'` refuses. That is also why the order of
+                 these divs matters: the generated rules address them by
+                 `nth-child`, so this must stay a flat list in the order of
+                 `.places`.
+
+                 This layer takes the pointer for the whole map, so it is also what
+                 replaced the dots' `<title>` tooltips — the card names the city,
+                 which is what the tooltip did.
+
+                 `tabindex` so the cards can be opened without a pointer. It is the
+                 only route to these names for a keyboard or a screen reader, since
+                 the svg is one `role="img"` graphic — at the cost of tab stops between
+                 the map and the projects below it: one per city to open its card, and
+                 then one per handle in the card that opens, since those are links to
+                 the profiles. Fifty-seven of them today. The city's own stop cannot be
+                 dropped in favour of the links inside it: the card is `visibility:
+                 hidden` until something in it has focus, and a hidden link is not
+                 focusable, so without a stop on the mark itself there is no way in. */}}
+            <div class="worldmap-hits">
+                {{ range .places -}}
+                {{ $pos := partial "worldmap-place.html" (dict "map" $map "place" .) -}}
+                {{/* Which side the card opens on, decided here because no script
+                     measures it at runtime: everything east of the middle opens to
+                     the left, everything west of it to the right, so a card never
+                     runs off the near edge of the map. */}}
+                <div class="worldmap-hit{{ if gt $pos.x (mul 0.5 $map.width) }} worldmap-hit-left{{ end }}"
+                    tabindex="0">
+                    <div class="worldmap-city">
+                        {{/* The place, and only the place. The count was here — "Shanghai,
+                             China — 6 contributors" — and it said twice what the card
+                             already shows: the faces below are the count, and the dot's
+                             size is what carries it on the map. */}}
+                        <p class="worldmap-city-head">{{ .label }}</p>
+                        <ul class="worldmap-city-people">
+                            {{ range .people -}}
+                            <li>
+                                {{/* Each row links to the profile. The url is built here
+                                     rather than carried in data/contributors.json: it is
+                                     github.com plus the handle, which the data already
+                                     has, so storing it would be a second copy of the
+                                     same fact to keep in step.
+
+                                     The whole row is the link — avatar and handle both —
+                                     so the target is the 24px face and its name rather
+                                     than a line of 13px text. Same tab, like every other
+                                     link on this page. */}}
+                                <a href="https://github.com/{{ .login }}">
+                                    {{/* Empty `alt`: the handle is right beside it, so a
+                                         screen reader announcing the avatar as well would
+                                         say the name twice — and the link is not left
+                                         nameless by that, it is named by the handle it
+                                         wraps. `lazy` and the `s=64` in the url are what
+                                         keep 34 faces off the critical path — see
+                                         tools/contributors.mjs. */}}
+                                    <img class="worldmap-avatar" src="{{ .avatar }}" alt="" width="24" height="24"
+                                        loading="lazy" decoding="async">
+                                    <span class="worldmap-city-login">{{ .login }}</span>
+                                </a>
+                            </li>
+                            {{ end -}}
+                        </ul>
+                        {{/* Ten faces is what the card has room for; this is what says the
+                             mark stands for more than that. Nothing renders it today —
+                             the largest city on the map has six — so it is the cap's
+                             overflow behaviour rather than a row anyone currently sees.
+
+                             An ellipsis where the eleventh avatar would be, sized and
+                             aligned to the faces above it so the row reads as the
+                             continuation of the list rather than a note under it. The
+                             count is text beside the icon: an icon alone would say there
+                             are more without saying how many, and how many is the only
+                             thing this row knows. */}}
+                        {{ with .more }}
+                        <p class="worldmap-city-more">
+                            <svg class="worldmap-city-more-icon" width="24" height="24" viewBox="0 0 24 24"
+                                fill="currentColor" stroke="none" aria-hidden="true">
+                                <circle cx="6" cy="12" r="1.75" />
+                                <circle cx="12" cy="12" r="1.75" />
+                                <circle cx="18" cy="12" r="1.75" />
+                            </svg>
+                            <span>{{ . }} more</span>
+                        </p>
+                        {{ end }}
+                    </div>
+                </div>
+                {{ end -}}
+            </div>
         </figure>
 
         {{/* The legend the dots need: a dot's size is comparable but not readable,
