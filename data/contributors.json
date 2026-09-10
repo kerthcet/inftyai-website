@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-08",
-  "total": 54,
-  "located": 36,
+  "generated": "2026-09-10",
+  "total": 55,
+  "located": 37,
   "places": [
     {
       "label": "Shanghai, China",
@@ -164,6 +164,27 @@
         {
           "login": "liangyuanpeng",
           "avatar": "https://avatars.githubusercontent.com/u/28711504?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "South Africa",
+      "country": "South Africa",
+      "lat": -29,
+      "lng": 24.7,
+      "countryOnly": true,
+      "short": "South Africa",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "AbdulDavids",
+          "avatar": "https://avatars.githubusercontent.com/u/125186956?v=4&s=64"
         }
       ],
       "more": 0
@@ -511,17 +532,17 @@
     }
   ],
   "cities": 21,
-  "countryCount": 15,
+  "countryCount": 16,
   "regions": [
     {
       "name": "Asia",
       "count": 15,
-      "percent": 28
+      "percent": 27
     },
     {
       "name": "North America",
       "count": 9,
-      "percent": 17
+      "percent": 16
     },
     {
       "name": "Europe",
@@ -537,6 +558,11 @@
       "name": "South America",
       "count": 2,
       "percent": 4
+    },
+    {
+      "name": "Africa",
+      "count": 1,
+      "percent": 2
     },
     {
       "name": "Others",
