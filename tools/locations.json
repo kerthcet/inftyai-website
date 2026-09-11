@@ -171,6 +171,12 @@
       "lat": 41.01,
       "lng": 28.98
     },
+    "limassol": {
+      "label": "Limassol, Cyprus",
+      "country": "Cyprus",
+      "lat": 34.71,
+      "lng": 33.02
+    },
     "london": {
       "label": "London, UK",
       "country": "United Kingdom",
@@ -835,6 +841,7 @@
     "dubai, uae": "dubai",
     "tel aviv, israel": "tel aviv",
     "istanbul, turkey": "istanbul",
+    "limassol, cyprus": "limassol",
     "london, uk": "london",
     "london, england": "london",
     "england": "united kingdom",
@@ -992,6 +999,7 @@
     "Taiwan": "Asia",
     "Thailand": "Asia",
     "Turkey": "Asia",
+    "Cyprus": "Asia",
     "Ukraine": "Europe",
     "United Arab Emirates": "Asia",
     "United Kingdom": "Europe",

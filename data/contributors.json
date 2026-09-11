@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-06",
-  "total": 72,
-  "located": 47,
+  "generated": "2026-09-11",
+  "total": 75,
+  "located": 48,
   "places": [
     {
       "label": "Shanghai, China",
@@ -197,30 +197,6 @@
       "more": 0
     },
     {
-      "label": "Cambridge, UK",
-      "country": "United Kingdom",
-      "lat": 52.2,
-      "lng": 0.12,
-      "short": "Cambridge",
-      "offset": {
-        "dx": -11,
-        "dy": 15,
-        "anchor": "end"
-      },
-      "count": 2,
-      "people": [
-        {
-          "login": "kerthcet",
-          "avatar": "https://avatars.githubusercontent.com/u/18364341?v=4&s=64"
-        },
-        {
-          "login": "ky-hiverge",
-          "avatar": "https://avatars.githubusercontent.com/u/218585409?v=4&s=64"
-        }
-      ],
-      "more": 0
-    },
-    {
       "label": "Shenzhen, China",
       "country": "China",
       "lat": 22.54,
@@ -265,6 +241,27 @@
         {
           "login": "VedantMadane",
           "avatar": "https://avatars.githubusercontent.com/u/6527493?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "South Africa",
+      "country": "South Africa",
+      "lat": -29,
+      "lng": 24.7,
+      "countryOnly": true,
+      "short": "South Africa",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "AbdulDavids",
+          "avatar": "https://avatars.githubusercontent.com/u/125186956?v=4&s=64"
         }
       ],
       "more": 0
@@ -411,6 +408,26 @@
       "more": 0
     },
     {
+      "label": "Cambridge, UK",
+      "country": "United Kingdom",
+      "lat": 52.2,
+      "lng": 0.12,
+      "short": "Cambridge",
+      "offset": {
+        "dx": -11,
+        "dy": 15,
+        "anchor": "end"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "kerthcet",
+          "avatar": "https://avatars.githubusercontent.com/u/18364341?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
       "label": "New Zealand",
       "country": "New Zealand",
       "lat": -41.5,
@@ -467,6 +484,26 @@
         {
           "login": "mbakgun",
           "avatar": "https://avatars.githubusercontent.com/u/8726393?v=4&s=64"
+        }
+      ],
+      "more": 0
+    },
+    {
+      "label": "Limassol, Cyprus",
+      "country": "Cyprus",
+      "lat": 34.71,
+      "lng": 33.02,
+      "short": "Limassol",
+      "offset": {
+        "dx": 11,
+        "dy": 4,
+        "anchor": "start"
+      },
+      "count": 1,
+      "people": [
+        {
+          "login": "nadyyym",
+          "avatar": "https://avatars.githubusercontent.com/u/96404149?v=4&s=64"
         }
       ],
       "more": 0
@@ -693,18 +730,18 @@
       "more": 0
     }
   ],
-  "cities": 26,
-  "countryCount": 18,
+  "cities": 27,
+  "countryCount": 20,
   "regions": [
     {
       "name": "Asia",
-      "count": 18,
+      "count": 19,
       "percent": 25
     },
     {
       "name": "Europe",
-      "count": 13,
-      "percent": 18
+      "count": 12,
+      "percent": 16
     },
     {
       "name": "North America",
@@ -722,10 +759,15 @@
       "percent": 3
     },
     {
+      "name": "Africa",
+      "count": 1,
+      "percent": 1
+    },
+    {
       "name": "Others",
-      "count": 25,
+      "count": 27,
       "note": "Contributors whose GitHub profile does not say where they are.",
-      "percent": 35
+      "percent": 36
     }
   ]
 }
