@@ -24,10 +24,14 @@
      assets/scss/common/_custom.scss.
 
      Positions and sizes come out of partials/worldmap-place.html, the same partial
-     the svg's dots are drawn from, because these two have to agree to the pixel. */}}
+     the svg's dots are drawn from, because these two have to agree to the pixel. The
+     list itself comes out of partials/worldmap-marks.html for the same reason, and it
+     is the stricter of the two requirements: these rules are `nth-child`, so this has
+     to be the same marks in the same order as the divs on the page, not merely the
+     same arithmetic. */}}
 {{ $map := site.Data.worldmap -}}
 {{ $rules := slice -}}
-{{ range $i, $place := site.Data.contributors.places -}}
+{{ range $i, $place := partial "worldmap-marks.html" (dict "data" site.Data.contributors "map" $map) -}}
 {{ $pos := partial "worldmap-place.html" (dict "map" $map "place" $place) -}}
 {{/* Percentages of the layer, which is the svg's own box — so the targets track the
      map through every width it renders at, exactly as the dots do.
@@ -53,6 +57,22 @@
 {{ $room := cond (gt $pos.x (mul 0.5 $map.width)) (sub $left (div $size 2.0)) (sub (sub 100.0 $left) (div $size 2.0)) -}}
 {{ $rules = $rules | append (printf ".worldmap-hit:nth-child(%d){left:%.3f%%;top:%.3f%%;width:%.3f%%;--map-room:%.3f}" (add $i 1) $left $top $size $room) -}}
 {{ end -}}
-{{ $css := resources.FromString "css/worldmap-hits.css" (delimit $rules "\n") | resources.Minify | fingerprint -}}
+{{/* The target path carries a hash of the rules, which is not decoration: it is what
+     keeps this stylesheet from going stale against the page it positions.
+
+     `resources.FromString` is keyed on the path it is given, and Hugo caches generated
+     resources under `resources/_gen` between builds. With a fixed name, a build whose
+     rules had changed — a contributor added, a city resolved, a mark reordered — could
+     be handed the bytes of an earlier one, and the failure is silent and total: the
+     rules are `nth-child`, so a stylesheet written for a different number of marks, or
+     the same marks in a different order, positions every card on somebody else's dot.
+     London's dot opened Bengaluru's card, which is exactly how this was found. A path
+     that changes with the content cannot be answered from the cache at all.
+
+     The `fingerprint` below still earns its place — it is what produces the integrity
+     hash the `style-src 'self'` policy is paired with, and the immutable URL — but it
+     runs after the fact and cannot fix a resource that was already the wrong one. */}}
+{{ $body := delimit $rules "\n" -}}
+{{ $css := resources.FromString (printf "css/worldmap-hits.%s.css" (hash.XxHash $body)) $body | resources.Minify | fingerprint -}}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
 {{ end -}}

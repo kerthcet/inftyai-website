@@ -1,0 +1,47 @@
+{{/* The marks the contributor map draws, which is not every place in
+     data/contributors.json.
+
+     A country-level place — contributors who said "India" and no city — is dropped
+     where that country has cities on the map as well and an outline to shade. The
+     shade over India is already the claim those contributors support: somebody is
+     somewhere in this country. Drawing a second mark for it put a card on a field in
+     central India that opened next to Bengaluru's, saying "India" where the map had
+     just said Bengaluru, and there was nothing to point at it with in the first
+     place — a shade is not a hover target, so the mark was a card that only appeared
+     when the pointer crossed empty land.
+
+     Stated plainly, because it is a real loss: those contributors are then nowhere on
+     the map by name. Four people today — two who gave "USA" and two who gave "India" —
+     are counted in the summary above it and in the region shares beside it, and
+     represented on the map by their country's shade and nothing else. What buys that
+     is that a centroid is not where they are: the alternative was a mark claiming a
+     place none of them named.
+
+     Where the country has no cities — South Africa, Romania, Italy, New Zealand — the
+     place is kept and drawn like any other mark, dot and name both. And where it has
+     no outline to be shaded by, it is kept whatever else is true, so a country the
+     110m dataset cannot draw still puts its people on the map: today that is Hong Kong
+     and Singapore, which only ever come through as cities anyway.
+
+     One partial rather than the same test in three templates, and that is the point of
+     it. The svg's marks, the hover targets over them and the generated stylesheet that
+     positions those targets are three lists that have to be the same list in the same
+     order — the rules are `nth-child`, so a template that filtered differently from the
+     others would silently put every card on somebody else's dot.
+
+     Called with `data` (site.Data.contributors) and `map` (site.Data.worldmap). */}}
+{{ $data := .data -}}
+{{ $map := .map -}}
+{{ $withCities := slice -}}
+{{ range $data.places -}}
+{{ if not .countryOnly -}}
+{{ $withCities = $withCities | append .country -}}
+{{ end -}}
+{{ end -}}
+{{ $marks := slice -}}
+{{ range $data.places -}}
+{{ if not (and .countryOnly (and (in $withCities .country) (index $map.countries .country))) -}}
+{{ $marks = $marks | append . -}}
+{{ end -}}
+{{ end -}}
+{{ return $marks -}}
