@@ -965,7 +965,7 @@
     "United States": "North America",
     "Vietnam": "Asia"
   },
-  "//labels": "Where each city's name is drawn relative to its dot, in viewBox units, keyed by label so aliases share one entry. Hand-placed because no automatic rule survives the two crowded corners of the map. Guangzhou and Shenzhen are 100km apart, which is 2.6 units at this scale, so one name goes below its dot and the other to the right; and Dublin, Cambridge, Amsterdam, Berlin and Minsk sit within 94 units of each other on one latitude, where 340 units of names have to be stacked onto separate rows above and below, with Barcelona taking the row under Amsterdam. Anything not listed defaults to `start` a little to the right. `anchor` is an SVG text-anchor: start places the text to the right of the dot, end to its left, middle centres it. A name reads as belonging to the dot nearest its anchored edge, so that is what a new entry has to get right — the dots in those two clusters are close enough that a name 20 units out can sit nearer a neighbour's dot than its own.",
+  "//labels": "Where each city's name is drawn relative to its dot, in viewBox units, keyed by label so aliases share one entry. Hand-placed because no automatic rule survives the two crowded corners of the map. Guangzhou and Shenzhen are 100km apart, which is 2.6 units at this scale, so one name goes below its dot and the other to the right; and Dublin, Cambridge, Amsterdam, Berlin and Minsk sit within 94 units of each other on one latitude, where 340 units of names have to be stacked onto separate rows above and below, with Barcelona taking the row under Amsterdam. Anything not listed defaults to `start` a little to the right. `anchor` is an SVG text-anchor: start places the text to the right of the dot, end to its left, middle centres it. A name reads as belonging to the dot nearest its anchored edge, so that is what a new entry has to get right — the dots in those two clusters are close enough that a name 20 units out can sit nearer a neighbour's dot than its own. A name also has to stay inside the map, which is what the eastern edge asks for: the svg does not clip, and on the default `start` anchor New Zealand's name ran 65 units past the map's right edge and into the region list beside it, so it is anchored `end` and drawn below Melbourne's row instead.",
   "labels": {
     "Shanghai, China": {
       "dx": 15,
@@ -1008,9 +1008,14 @@
       "anchor": "middle"
     },
     "Melbourne, Australia": {
-      "dx": 11,
-      "dy": 6,
-      "anchor": "start"
+      "dx": -11,
+      "dy": 4,
+      "anchor": "end"
+    },
+    "New Zealand": {
+      "dx": -8,
+      "dy": 19,
+      "anchor": "end"
     },
     "Dublin, Ireland": {
       "dx": 0,
