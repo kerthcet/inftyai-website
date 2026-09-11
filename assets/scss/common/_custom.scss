@@ -372,9 +372,27 @@ $map-pulse-alpha: 0.18;
   display: flex;
   flex-direction: column;
   align-items: center;
-  // Under the block gap either way, so the map and its legend still read as one
-  // thing — but not so tight that the legend looks welded to the map's edge.
-  gap: 2rem;
+  // Room for a card to open into rather than separation, which is what this is for at
+  // every other width. Stacked on a phone the map is shorter than the cards standing on
+  // it: 109px tall at 320px wide, where Shanghai's six faces make a 221px card. A card
+  // is centred on its dot, so one in the lower half of a map that short hangs past its
+  // bottom edge — Shanghai's by 42px, which over a 2rem gap laid the card's bottom edge
+  // and its shadow across the legend's "Asia" row.
+  //
+  // 3.5rem clears it: at 320px the widest card the data makes stops 9px above the
+  // legend's box and 14px above the first row's text. The separation the two elements
+  // actually want is the 2rem below.
+  gap: 3.5rem;
+}
+
+// From `sm` up the container has a fixed width, so the map stops shrinking: it is 175px
+// tall or more, the worst overhang is 18px, and the gap can go back to being spacing.
+@include media-breakpoint-up(sm) {
+  .worldmap-layout {
+    // Under the block gap either way, so the map and its legend still read as one
+    // thing — but not so tight that the legend looks welded to the map's edge.
+    gap: 2rem;
+  }
 }
 
 @include media-breakpoint-up(lg) {
