@@ -70,7 +70,11 @@ if (!token) {
   console.warn("warning: no GITHUB_TOKEN set, expect to be rate limited\n");
 }
 
-async function request(path) {
+// `missing`: what to return for a 404 instead of stopping the run. Only the profile
+// lookups pass it, and only because a login read out of a commit is a login as it was
+// on the day of the commit — an account renamed or deleted since is a 404 and is not a
+// reason to leave the whole map stale.
+async function request(path, { missing } = {}) {
   const headers = {
     Accept: "application/vnd.github+json",
     "User-Agent": "inftyai-website",
@@ -81,14 +85,16 @@ async function request(path) {
     path.startsWith("https://") ? path : `https://api.github.com/${path}`,
     { headers },
   );
+  if (response.status === 404 && missing !== undefined) return null;
   if (!response.ok) {
     exit(`GET ${path} responded ${response.status} ${response.statusText}`);
   }
   return response;
 }
 
-async function github(path) {
-  return (await request(path)).json();
+async function github(path, options) {
+  const response = await request(path, options);
+  return response === null ? options.missing : response.json();
 }
 
 // Every page, not just the first. A repository with more than one page of commits
@@ -123,33 +129,108 @@ async function githubAll(path) {
 // The cost is pagination — about twenty requests across the seven projects instead of
 // seven — which is nothing against the hourly limit, and the per-contributor profile
 // lookups below already dwarf it.
-const logins = new Set();
-// How much each person has done, for the panel the legend opens on hover. Both come
-// out of the commit pages that are already being read for the headcount, so the
-// ranking costs no extra requests — which is the only reason it is commit-based
-// rather than something the API would have to be asked for separately.
-const commitsBy = new Map();
-const reposBy = new Map();
+//
+// Everyone with a commit, keyed by their login lowercased: GitHub logins are
+// case-insensitive, and the same person arrives spelled two ways — `googs1025` from
+// the API's author field and `CYJiang <86391540+googs1025@users.noreply.github.com>`
+// from a co-author trailer. Keyed by the login itself, that was two contributors.
+//
+// How much each has done travels with them, for the order the cards list faces in.
+// Both numbers come out of the commit pages that are already being read for the
+// headcount, so the ranking costs no extra requests — which is the only reason it is
+// commit-based rather than something the API would have to be asked for separately.
+const contributors = new Map();
+
+// A commit's `author` is the one person GitHub attributed it to. Where two people
+// wrote it, the second is a `Co-authored-by:` trailer in the message and appears in no
+// field of the API's response — so reading `author` alone silently dropped them.
+//
+// Not a corner case here. Every project added to Awesome-LLMOps arrives as a pull
+// request that inftyai-agent squash-merges, which makes that machine account the
+// author and the person who did the work the co-author. They were counted as nobody,
+// while the same contribution to a repo whose merges a human presses counted as a
+// contributor — and around twenty of the people already on the map are Awesome-LLMOps
+// submitters, so the map was applying two rules to one kind of work.
+const COAUTHOR = /^co-authored-by:\s*(.*?)\s*<([^>]+)>\s*$/gim;
+
+// The only address that names a GitHub account rather than a mailbox:
+// `id+login@users.noreply.github.com`, or the older `login@…`. The login is taken from
+// there and nowhere else — the display name beside it is free text, and guessing from
+// it would be wrong in both directions: `Kerry He` is the account `kerry-he`, which
+// looks guessable, and `Se7en <chengzw258@163.com>` is `cr7258`, which does not. A
+// name that happens to be somebody else's login would credit a stranger. Unresolved
+// trailers are reported at the end instead, and in practice they are people a
+// noreply trailer or an ordinary commit elsewhere has already found.
+//
+// Loose about the login's own shape, because the profile lookup below is what decides
+// whether an account exists.
+const NOREPLY = /^(?:\d+\+)?([\w-]+)@users\.noreply\.github\.com$/i;
+
+// Co-authors that are not people and have no account to look for: the assistants that
+// sign commits in these repositories. Skipped rather than reported, so the report of
+// unresolved trailers stays a list of contributors to look into rather than one line
+// of noise per model release.
+const NOT_PEOPLE = new Set(["noreply@anthropic.com"]);
+
+// Trailers naming somebody no login could be read from, for the report at the end.
+const unresolved = new Map();
+
+// Adds one commit to somebody's total, and returns the spelling of their login that
+// the rest of the run uses. Null for anyone who is not a person to count.
+function credit(login, repo) {
+  const key = login.toLowerCase();
+  // `[bot]` is the suffix GitHub gives every App's account, and EXCLUDE covers the
+  // machine accounts that are ordinary users as far as the API is concerned.
+  if (key.endsWith("[bot]") || EXCLUDE.has(key)) return null;
+  let entry = contributors.get(key);
+  if (!entry) {
+    entry = { login, commits: 0, repos: new Set() };
+    contributors.set(key, entry);
+  }
+  entry.commits += 1;
+  entry.repos.add(repo);
+  return entry.login;
+}
+
 for (const repo of repos) {
   const commits = await githubAll(`repos/${repo}/commits?per_page=100`);
   const seen = new Set();
   let unattributed = 0;
-  for (const { author } of commits) {
-    // No linked account: a commit whose author email belongs to no GitHub user.
-    // Nothing to look a location up for, so it can only be counted and reported.
-    if (!author) {
-      unattributed += 1;
-      continue;
+  for (const commit of commits) {
+    const { author } = commit;
+    // Everyone this commit is the work of: the author GitHub linked to an account,
+    // then every co-author a login can be read from. A Map keyed on the lowercased
+    // login, so that the common `Signed-off-by` plus `Co-authored-by` pair naming the
+    // author again is one commit for them rather than two.
+    const writers = new Map();
+    const writer = (login) => {
+      if (!writers.has(login.toLowerCase()))
+        writers.set(login.toLowerCase(), login);
+    };
+    // `type` is "Bot" for GitHub Apps. A missing author is a commit whose author
+    // email belongs to no GitHub user — there is nothing to look a location up for,
+    // and a co-author trailer may yet name somebody, so it is left to the count below.
+    if (author?.type === "User") writer(author.login);
+    for (const [, name, email] of commit.commit.message.matchAll(COAUTHOR)) {
+      if (NOT_PEOPLE.has(email.toLowerCase())) continue;
+      const login = NOREPLY.exec(email)?.[1];
+      if (login) {
+        writer(login);
+        continue;
+      }
+      if (name.toLowerCase().endsWith("[bot]")) continue;
+      const trailer = `${name} <${email}>`;
+      unresolved.set(trailer, (unresolved.get(trailer) ?? 0) + 1);
     }
-    // `type` is "Bot" for GitHub Apps; EXCLUDE covers machine accounts that are
-    // ordinary users as far as the API is concerned.
-    if (author.type !== "User") continue;
-    if (EXCLUDE.has(author.login.toLowerCase())) continue;
-    seen.add(author.login);
-    logins.add(author.login);
-    commitsBy.set(author.login, (commitsBy.get(author.login) ?? 0) + 1);
-    if (!reposBy.has(author.login)) reposBy.set(author.login, new Set());
-    reposBy.get(author.login).add(repo);
+    const credited = [...writers.values()]
+      .map((login) => credit(login, repo))
+      .filter((login) => login !== null);
+    // A commit whose author email belongs to no GitHub user and whose trailers named
+    // nobody either: there is no account to look a location up for, so all it can be
+    // is counted and reported. A bot's commit is not this — it has an account, and
+    // that account is deliberately not a person.
+    if (!author && !credited.length) unattributed += 1;
+    for (const login of credited) seen.add(login);
   }
   console.log(
     `${repo}: ${seen.size} contributors across ${commits.length} commits` +
@@ -179,8 +260,24 @@ let located = 0;
 // from this, matched back to its place below.
 const people = [];
 
-for (const login of [...logins].sort()) {
-  const { location, avatar_url: avatar } = await github(`users/${login}`);
+for (const [id, entry] of [...contributors].sort(([a], [b]) =>
+  a.localeCompare(b),
+)) {
+  const { login, commits, repos } = entry;
+  const profile = await github(`users/${login}`, { missing: null });
+
+  // A login is a login as it was on the day of the commit it was read from, and three
+  // of the ones in these repositories now 404: renamed or deleted since. Dropped
+  // rather than counted, because there is no profile to place them by and no avatar to
+  // show — all they could add is another line to the "Others" share.
+  if (profile === null) {
+    contributors.delete(id);
+    console.warn(
+      `warning: no account for ${login}, named in a commit — skipping`,
+    );
+    continue;
+  }
+  const { location, avatar_url: avatar } = profile;
 
   // `place` stays null until one is matched, and a null is somebody no card will
   // ever list: no location, a location the table has not learned, and a known
@@ -195,8 +292,8 @@ for (const login of [...logins].sort()) {
     // Only the ranking, and only until the sort below — neither number reaches
     // data/contributors.json. The card shows a face and a handle; a commit count
     // beside them invited a reading of the map as a scoreboard.
-    commits: commitsBy.get(login) ?? 0,
-    repos: reposBy.get(login)?.size ?? 0,
+    commits,
+    repos: repos.size,
     place: null,
   };
   people.push(person);
@@ -216,8 +313,8 @@ for (const login of [...logins].sort()) {
   if (place === null) continue;
 
   // The mark whose card will list them. The label, because that is what identifies
-  // one mark on the map — and note that it can be a country-level fallback, which
-  // may not survive the pruning below.
+  // one mark on the map — and it can be a country-level fallback, which is a mark
+  // like any other and gets a card like any other.
   person.place = place.label;
 
   const existing = places.get(place.label);
@@ -237,29 +334,22 @@ for (const login of [...logins].sort()) {
   located += 1;
 }
 
-// A country-level place is a fallback: it says "somewhere in this country", which
-// is worth drawing only while nothing better is known about that country. Once a
-// city there is on the map, the country's own mark goes — a blob over China beside
-// five Chinese cities reads as a sixth city that nobody lives in.
+// Every mark that was matched is drawn, country-level fallbacks included.
 //
-// Snapshot first, because everyone a dropped mark stood for still belongs to a
-// region: their country is known, only their position is not. Everything derived
-// below counts `matched` rather than `places`, and that is what holds the
-// percentages still while the map loses a mark.
+// This used to prune them: a country mark said "somewhere in this country", and once
+// a city there was on the map the country's own mark went, on the grounds that a blob
+// over China beside five Chinese cities reads as a sixth city that nobody lives in.
+// That is true of the blob and it was the wrong thing to weigh. The mark was not the
+// only thing dropped — the people it stood for went with it, off the card that names
+// them and into a region percentage, so writing "India" instead of "Bengaluru" was
+// enough to be counted and not shown. The contributors are the baseline here: a mark
+// exists to name whoever is under it, so no mark that has somebody under it is
+// dropped for the drawing's sake.
 //
-// Data-dependent, so it is reversible: if every contributor in a Chinese city left
-// and only a bare "China" remained, the country mark would come back. That is the
-// rule working, but it does mean the map can change shape from the contributor list
-// alone, with no edit to this file.
+// What is left of the blob problem is a label, and the label is the answer to it:
+// "India" beside a dot in the middle of India is not a city, and the card it opens
+// lists the people who wrote it that way.
 const matched = [...places.values()];
-const mappedCities = new Set(
-  matched.filter((place) => !place.countryOnly).map((place) => place.country),
-);
-for (const place of matched) {
-  if (place.countryOnly && mappedCities.has(place.country)) {
-    places.delete(place.label);
-  }
-}
 
 // The summary beside the map is by region, not by city or country. Ten cities was
 // a longer list than the map has dots worth explaining, and five of them were
@@ -329,22 +419,10 @@ for (const place of places.values()) {
   }
 }
 
-// Everyone the table placed in a country whose fallback mark was then pruned: located,
-// counted in their region's share, and on no dot — so no card lists them. Reported
-// because it is otherwise invisible, and because the fix is a line in
-// tools/locations.json for the city they are actually in.
-const orphaned = people.filter(
-  (person) => person.place && !places.has(person.place),
-);
-if (orphaned.length) {
-  console.log(
-    `\n${orphaned.length} contributor(s) matched a country-level mark that a city has` +
-      ` since replaced, so no card lists them:`,
-  );
-  for (const person of orphaned) {
-    console.log(`  ${person.login} (${person.place})`);
-  }
-}
+// Nobody the table placed is off the map any more: the report that used to stand here
+// listed the contributors whose country mark a city had replaced, and there is no
+// longer such a thing. Every located person is on the mark their `place` names, which
+// the check above proves mark by mark.
 
 // Shares of every contributor, as whole numbers that still add to 100.
 //
@@ -392,7 +470,7 @@ const ranked = [...regionCounts]
 // `note` is the only explanation the row gets — a visible one was tried and cut.
 // It reaches the tooltip and the accessibility tree, and the label alone would
 // otherwise suggest these people are somewhere else rather than unstated.
-const unlocated = logins.size - located;
+const unlocated = contributors.size - located;
 if (unlocated > 0) {
   ranked.push({
     name: "Others",
@@ -403,18 +481,19 @@ if (unlocated > 0) {
 
 const shares = share(
   ranked.map((r) => r.count),
-  logins.size,
+  contributors.size,
 );
 
 const output = {
   // Not rendered anywhere — it is here so that a reader of the file, or of a
   // diff, can tell how old the snapshot is without going through git log.
   generated: new Date().toISOString().slice(0, 10),
-  total: logins.size,
+  total: contributors.size,
   located,
   // One mark each on the map. Largest first, so the template draws the big dots
   // before the small ones and a city of one is never hidden underneath a city of
-  // six. Country-level fallbacks that have yielded to a city are already gone.
+  // six. A country-level fallback is one of these marks, drawn wherever somebody
+  // gave their country and no more than that.
   //
   // `people` is the card the mark opens: a handle and an avatar each, capped at ten
   // because the card is a panel floating over the map and a mark of thirty would cover
@@ -438,10 +517,9 @@ const output = {
   // fallback is a mark too. Only used by the map's accessible name, which called
   // India a city before this existed.
   cities: matched.filter((place) => !place.countryOnly).length,
-  // How many countries the located contributors are in — from `matched`, so a
-  // country whose fallback mark was dropped still counts. Not shown, but it is
-  // what the map's accessible name says, being more use to a screen reader than
-  // "4 regions".
+  // How many countries the located contributors are in, which is fewer than there
+  // are marks: six of these are American. Not shown, but it is what the map's
+  // accessible name says, being more use to a screen reader than "4 regions".
   countryCount: new Set(matched.map((p) => p.country)).size,
   // Regions plus the "Others" remainder: one row each in the summary. `count` is
   // not rendered — `percent` is — but it stays so the file can be checked against
@@ -501,6 +579,25 @@ if (unmatched.size) {
   );
   for (const [key, count] of [...unmatched].sort((a, b) => b[1] - a[1])) {
     console.log(`  ${JSON.stringify(key)}${count > 1 ? ` (x${count})` : ""}`);
+  }
+}
+
+// Co-authors written with an ordinary email address, which names a mailbox and not an
+// account. Reported rather than resolved, for the reasons NOREPLY carries: there is no
+// rule that turns "Se7en <chengzw258@163.com>" into `cr7258`, and a guess from the name
+// would sooner or later credit a stranger.
+//
+// Not a list of people missing from the map. Most of these are somebody an ordinary
+// commit or a noreply trailer elsewhere has already found — the list is here so that
+// one who is not can be noticed, and the answer to that is a commit of their own, not
+// a table of email addresses to keep.
+if (unresolved.size) {
+  console.log(
+    `\n${unresolved.size} co-author(s) named by email rather than by account, so not` +
+      ` counted from those commits (they may be counted from others):`,
+  );
+  for (const [trailer, count] of [...unresolved].sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${trailer}${count > 1 ? ` (x${count})` : ""}`);
   }
 }
 

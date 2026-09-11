@@ -45,7 +45,48 @@
             <svg class="worldmap-svg" viewBox="0 0 {{ $map.width }} {{ $map.height }}" role="img"
                 aria-label="{{ $summary }}." xmlns="http://www.w3.org/2000/svg">
                 <path class="worldmap-land" d="{{ $map.land }}" />
+                {{/* Every country anybody on the map is in, shaded whole. Two things
+                     are being said at once and they are different claims: the shade
+                     is the country somebody is in, the dot is the city they are in.
+                     A country nobody named a city in — "United States" is 39.5N
+                     98.35W, a field in Kansas — gets only the shade, which is exactly
+                     what was given: somewhere in here. Drawing that as a dot claimed
+                     the precision of San Francisco 500 units away.
+
+                     One shade per country, not one per mark: China has four cities on
+                     the map and the United States six marks, and painting the same
+                     path four times would have stacked four alphas into a country
+                     brighter than its own dots.
+
+                     Drawn before the marks and outside their groups, so every dot and
+                     every label sits on top of every shade. Paths rather than a
+                     wrapping `<g>` for the same reason the pulse rhythms are keyed to
+                     `worldmap-place`: `nth-of-type` counts elements of one type among
+                     their siblings, and a group here would have shifted every mark's
+                     bucket by one.
+
+                     Only the countries tools/worldmap.mjs has an outline for. It has
+                     one for every country tools/locations.json can place anybody in
+                     except Hong Kong and Singapore, which are smaller than the
+                     dataset resolves — they are on the map as city dots, and the
+                     `with` below is what lets them be. */}}
+                {{ $countries := slice -}}
                 {{ range .places -}}
+                {{ $countries = $countries | append .country -}}
+                {{ end -}}
+                {{ range uniq $countries -}}
+                {{ with index $map.countries . -}}
+                <path class="worldmap-country" d="{{ . }}" />
+                {{ end -}}
+                {{ end -}}
+                {{/* Every place except the country-level ones the shade above has
+                     already accounted for — see partials/worldmap-marks.html for which
+                     those are and what it costs. Ranged from the same partial as the
+                     hover targets below and as the stylesheet that positions them,
+                     because those rules are `nth-child` and the three lists have to
+                     agree element for element. */}}
+                {{ $marks := partial "worldmap-marks.html" (dict "data" . "map" $map) -}}
+                {{ range $marks -}}
                 {{/* Position and size, from the one place that computes them: the
                      stylesheet generated in head/resource-hints.html has to put each
                      card's hover target exactly on top of the dot drawn here, and
@@ -119,7 +160,15 @@
                          city — see the note there on why no automatic rule works
                          once two of them are 2.6 units apart. Hidden on narrow
                          screens by the stylesheet, where the map is too small to
-                         carry text and the list below says the same thing. */}}
+                         carry text and the list below says the same thing.
+
+                         Every mark drawn here is named, country-level ones included:
+                         the countries that would have wanted their name left off,
+                         because their cities were already naming the same shape, are
+                         not marks any more (partials/worldmap-marks.html). What is
+                         left of a country mark is South Africa, Romania, Italy and New
+                         Zealand — the countries whose name is the only name on the map
+                         for them. */}}
                     {{ $short := .short -}}
                     {{ with .offset -}}
                     <text class="worldmap-label" x="{{ printf "%.1f" (add $x (float .dx)) }}"
@@ -140,8 +189,8 @@
                  head/resource-hints.html, not in a `style` attribute here, which the
                  site's own `style-src 'self'` refuses. That is also why the order of
                  these divs matters: the generated rules address them by
-                 `nth-child`, so this must stay a flat list in the order of
-                 `.places`.
+                 `nth-child`, so this must stay a flat list of exactly the marks
+                 partials/worldmap-marks.html returns, in that order.
 
                  This layer takes the pointer for the whole map, so it is also what
                  replaced the dots' `<title>` tooltips — the card names the city,
@@ -157,7 +206,7 @@
                  hidden` until something in it has focus, and a hidden link is not
                  focusable, so without a stop on the mark itself there is no way in. */}}
             <div class="worldmap-hits">
-                {{ range .places -}}
+                {{ range $marks -}}
                 {{ $pos := partial "worldmap-place.html" (dict "map" $map "place" .) -}}
                 {{/* Which side the card opens on, decided here because no script
                      measures it at runtime: everything east of the middle opens to

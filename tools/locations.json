@@ -93,6 +93,12 @@
       "lat": 1.35,
       "lng": 103.82
     },
+    "kuala lumpur": {
+      "label": "Kuala Lumpur, Malaysia",
+      "country": "Malaysia",
+      "lat": 3.14,
+      "lng": 101.69
+    },
     "bengaluru": {
       "label": "Bengaluru, India",
       "country": "India",
@@ -164,6 +170,12 @@
       "country": "Turkey",
       "lat": 41.01,
       "lng": 28.98
+    },
+    "limassol": {
+      "label": "Limassol, Cyprus",
+      "country": "Cyprus",
+      "lat": 34.71,
+      "lng": 33.02
     },
     "london": {
       "label": "London, UK",
@@ -375,6 +387,12 @@
       "lat": 41.88,
       "lng": -87.63
     },
+    "cleveland": {
+      "label": "Cleveland, USA",
+      "country": "United States",
+      "lat": 41.5,
+      "lng": -81.69
+    },
     "boston": {
       "label": "Boston, USA",
       "country": "United States",
@@ -398,6 +416,12 @@
       "country": "United States",
       "lat": 33.75,
       "lng": -84.39
+    },
+    "tampa": {
+      "label": "Tampa, USA",
+      "country": "United States",
+      "lat": 27.95,
+      "lng": -82.46
     },
     "toronto": {
       "label": "Toronto, Canada",
@@ -673,6 +697,13 @@
       "lng": 19.4,
       "countryOnly": true
     },
+    "romania": {
+      "label": "Romania",
+      "country": "Romania",
+      "lat": 45.9,
+      "lng": 25,
+      "countryOnly": true
+    },
     "sweden": {
       "label": "Sweden",
       "country": "Sweden",
@@ -792,9 +823,12 @@
     "seoul, south korea": "seoul",
     "seoul, korea": "seoul",
     "korea": "south korea",
+    "kuala lumpur, malaysia": "kuala lumpur",
+    "kl": "kuala lumpur",
     "bangalore": "bengaluru",
     "bangalore, india": "bengaluru",
     "bengaluru, india": "bengaluru",
+    "bengaluru, in": "bengaluru",
     "mumbai, india": "mumbai",
     "delhi": "new delhi",
     "delhi, india": "new delhi",
@@ -807,6 +841,7 @@
     "dubai, uae": "dubai",
     "tel aviv, israel": "tel aviv",
     "istanbul, turkey": "istanbul",
+    "limassol, cyprus": "limassol",
     "london, uk": "london",
     "london, england": "london",
     "england": "united kingdom",
@@ -855,6 +890,8 @@
     "denver, co": "denver",
     "austin, tx": "austin",
     "chicago, il": "chicago",
+    "cleveland, oh": "cleveland",
+    "cleveland, ohio": "cleveland",
     "boston, ma": "boston",
     "cambridge, ma": "boston",
     "new york, ny": "new york",
@@ -866,6 +903,8 @@
     "washington, d.c.": "washington, dc",
     "dc": "washington, dc",
     "atlanta, ga": "atlanta",
+    "tampa, fl": "tampa",
+    "tampa, florida": "tampa",
     "toronto, canada": "toronto",
     "toronto, on": "toronto",
     "montreal, canada": "montreal",
@@ -937,6 +976,7 @@
     "Israel": "Asia",
     "Italy": "Europe",
     "Japan": "Asia",
+    "Malaysia": "Asia",
     "Kenya": "Africa",
     "Mexico": "North America",
     "Morocco": "Africa",
@@ -959,6 +999,7 @@
     "Taiwan": "Asia",
     "Thailand": "Asia",
     "Turkey": "Asia",
+    "Cyprus": "Asia",
     "Ukraine": "Europe",
     "United Arab Emirates": "Asia",
     "United Kingdom": "Europe",
@@ -993,13 +1034,13 @@
       "anchor": "end"
     },
     "India": {
-      "dx": 0,
-      "dy": 23,
-      "anchor": "middle"
+      "dx": -11,
+      "dy": 4,
+      "anchor": "end"
     },
     "Cambridge, UK": {
-      "dx": -8,
-      "dy": 19,
+      "dx": -11,
+      "dy": 15,
       "anchor": "end"
     },
     "Berlin, Germany": {
@@ -1012,15 +1053,10 @@
       "dy": 4,
       "anchor": "end"
     },
-    "New Zealand": {
-      "dx": -8,
-      "dy": 19,
-      "anchor": "end"
-    },
     "Dublin, Ireland": {
-      "dx": 0,
-      "dy": -11,
-      "anchor": "middle"
+      "dx": -11,
+      "dy": 4,
+      "anchor": "end"
     },
     "Palo Alto, USA": {
       "dx": -12,
@@ -1028,8 +1064,8 @@
       "anchor": "end"
     },
     "Amsterdam, Netherlands": {
-      "dx": 12,
-      "dy": 23,
+      "dx": 11,
+      "dy": -25,
       "anchor": "start"
     },
     "Barcelona, Spain": {
@@ -1038,19 +1074,49 @@
       "anchor": "start"
     },
     "San Francisco, USA": {
-      "dx": 0,
-      "dy": -14,
-      "anchor": "start"
+      "dx": -11,
+      "dy": 4,
+      "anchor": "end"
     },
     "Paris, France": {
-      "dx": 17,
-      "dy": 28,
+      "dx": 11,
+      "dy": 8,
       "anchor": "start"
     },
     "Chicago, USA": {
-      "dx": 8,
+      "dx": 0,
+      "dy": -17,
+      "anchor": "middle"
+    },
+    "London, UK": {
+      "dx": 0,
+      "dy": -28,
+      "anchor": "middle"
+    },
+    "New Zealand": {
+      "dx": -8,
       "dy": 19,
+      "anchor": "end"
+    },
+    "Italy": {
+      "dx": 11,
+      "dy": 9,
       "anchor": "start"
+    },
+    "Bengaluru, India": {
+      "dx": 0,
+      "dy": 19,
+      "anchor": "middle"
+    },
+    "Cleveland, USA": {
+      "dx": 11,
+      "dy": 12,
+      "anchor": "start"
+    },
+    "United States": {
+      "dx": -11,
+      "dy": -8,
+      "anchor": "end"
     }
   }
 }

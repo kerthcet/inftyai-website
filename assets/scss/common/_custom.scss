@@ -341,13 +341,54 @@ $feature-gap: 1.25rem;
 // smudges in the land.
 //
 // The cost is contrast, and it is worth stating plainly: 2.2:1 against the white
-// keyline that rings each dot, 1.9:1 against the land. WCAG 2.1 asks 3:1 of a
+// keyline that rings each dot, 1.9:1 against the land — 1.1:1 where the dot stands
+// on a shaded country, which is where most of them stand. WCAG 2.1 asks 3:1 of a
 // graphic needed to understand the content, and this no longer meets it. What makes
 // that a considered trade rather than an oversight is that nothing here is only on
 // the map: every city is named in the card that opens on its dot, along with the
 // people who are there, and the region shares are the text list beside it. Going
 // back to 72% (#E47351) restores 3.1:1 on the keyline.
+//
+// The keyline is what keeps the dots countable over the shade, and it gains what the
+// fill loses: white on a shaded country is 1.97:1 against 1.18:1 on bare land. That
+// trade is why the shade can be as dark as it is — see $map-region.
 $map-land: #e9edf2;
+// The countries somebody is in, filled whole. The land's own colour a step darker
+// rather than a colour of its own, which is what this started as — the mark's hue at
+// 35%, and the trouble was never the strength but that half the land ended up in the
+// accent family. North America, China, India and Australia are all shaded, so the
+// largest warm shapes on the map were the ones carrying the vaguest information: a
+// country is where somebody is *somewhere* in, and the dots are where they actually
+// are. A darker neutral says which countries without spending the accent on them, so
+// the dots stay the only colour the map has.
+//
+// #b0bac6 is a slate: the land's own hue (213) at 16% saturation against its 26%, and
+// 73% lightness against its 93%. Every number here was set by rendering the
+// alternatives and looking at them, and the two dead ends are worth keeping:
+//
+// #c8d4e3 — the land's hue and saturation at 84% — was too blue and too close. Blue at
+// full saturation is the one hue a map already spends on something else, so the shaded
+// countries read as a second sea rather than as land with somebody in it, and at 84%
+// they were a 1.28:1 step off the land besides.
+//
+// #bcc0c4 — a near-neutral grey at 6% saturation — went too far the other way. A grey
+// that has no hue at all sits over a land that has one, and the shapes read as a
+// desaturated patch of the map rather than as a tone of it: muddy, and nothing to do
+// with contrast, which was fine.
+//
+// So: keep the land's hue, drop most of its saturation, and take the lightness down
+// until the shade is unmistakable — a 1.67:1 step against the land. The floor is the
+// small countries, because Romania, Italy, Ireland and Cyprus are a few pixels of
+// coastline at this width and at 86% they did not read at all, which loses the shade
+// exactly where it is the only thing saying anybody is there. The ceiling is where the
+// shades stop being marks on one landmass and become a silhouette of their own over
+// it — around 70%, where the United States and Brazil start to outweigh the dots
+// standing on them.
+//
+// Flat and opaque rather than a tint: the shades are one per country and never
+// overlap, so there is nothing for an alpha to buy — and an alpha over the land is
+// this colour anyway, computed at render time instead of being chosen.
+$map-region: #b0bac6;
 $map-mark: mix($primary, #fff, 52%);
 // City labels and the legend's figures. Lighter than the body ink, which made both
 // heavier than the map they annotate. Safe at this lightness only because each is
@@ -374,15 +415,21 @@ $map-pulse-alpha: 0.18;
   align-items: center;
   // Room for a card to open into rather than separation, which is what this is for at
   // every other width. Stacked on a phone the map is shorter than the cards standing on
-  // it: 109px tall at 320px wide, where Shanghai's six faces make a 221px card. A card
+  // it: 109px tall at 320px wide, where Shanghai's seven faces make a 249px card. A card
   // is centred on its dot, so one in the lower half of a map that short hangs past its
-  // bottom edge — Shanghai's by 42px, which over a 2rem gap laid the card's bottom edge
+  // bottom edge — Shanghai's by 56px, which over a 2rem gap laid the card's bottom edge
   // and its shadow across the legend's "Asia" row.
   //
-  // 3.5rem clears it: at 320px the widest card the data makes stops 9px above the
-  // legend's box and 14px above the first row's text. The separation the two elements
-  // actually want is the 2rem below.
-  gap: 3.5rem;
+  // 4.5rem clears it: at 320px the tallest card stops 9px above the legend's box and
+  // 14px above the first row's text. The separation the two elements actually want is
+  // the 2rem below.
+  //
+  // It is measured against the data, so it is worth knowing what moves it: every face
+  // the tallest card gains is 12px more overhang here (3.5rem was enough for six of
+  // them), and the list stops at ten and an "and N more" line, which would want 7rem.
+  // A gap that big under a 109px map is spacing that reads as a mistake, so if the map
+  // ever needs it, the card is what should give — not this.
+  gap: 4.5rem;
 }
 
 // From `sm` up the container has a fixed width, so the map stops shrinking: it is 175px
@@ -522,6 +569,32 @@ $map-pulse-alpha: 0.18;
 // theme renders no mode toggler, so there is no second colour scheme to follow.
 .worldmap-land {
   fill: $map-land;
+}
+
+// Every country a contributor is in, filled over the land. See `$map-region` for why
+// it is a darker neutral and not a tint of the mark's colour.
+.worldmap-country {
+  fill: $map-region;
+  // A hairline of page background around each country, which is the same device the
+  // dots use and it is here for the same reason: without it, neighbours that both
+  // have contributors fuse into one shape. The United States and Canada became a
+  // single mass from the Arctic to Mexico, China and India one from the Pacific to
+  // the Arabian Sea, and eight European countries one blob — a map that said "this
+  // continent" where the data says which countries.
+  //
+  // The stroke straddles the outline, so half of it lands outside: on the sea, where
+  // it is the same white and invisible, and on an unshaded neighbour, where it is a
+  // barely-there 1.18:1 lightening of the land. Only where two shades meet do both
+  // halves paint, and that is the one place a seam is wanted.
+  //
+  // 0.8 units against the dots' 2.5. This is a border and not a keyline: at 2.5 the
+  // seams read as white rivers between countries, and Italy — 15 units of coastline —
+  // loses a fifth of its area to its own outline.
+  stroke: var(--bs-body-bg, #fff);
+  stroke-width: 0.8;
+  // The pointer belongs to the hover target in the html layer above, as it does for
+  // the dots — a shade is not a bigger hit area, it is a bigger mark.
+  pointer-events: none;
 }
 
 .worldmap-dot {

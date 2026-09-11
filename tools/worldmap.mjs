@@ -1,18 +1,26 @@
 // Regenerates data/worldmap.json — the land silhouette the contributor map is
-// drawn on. Run by `make worldmap`; the output is committed, so a normal build
-// needs neither this script nor network access.
+// drawn on, and the outline of each country a contributor can be placed in
+// without a city. Run by `make worldmap`; the output is committed, so a normal
+// build needs neither this script nor network access.
 //
-// The source is Natural Earth's 110m land layer, as published in TopoJSON by
+// The source is Natural Earth's 110m admin-0 layer, as published in TopoJSON by
 // world-atlas. TopoJSON is decoded here by hand rather than with topojson-client
 // + d3-geo, to keep tools/ dependency-free the way tools/og-shot.mjs is: the
 // whole job is a delta-decode and an equirectangular projection, which is less
 // code than the install would be.
 //
-// Usage: node tools/worldmap.mjs [land-110m.json]
+// countries-110m.json rather than land-110m.json, which is where this started and
+// which draws the same coastline: this file carries a `land` object of its own
+// *and* the per-country geometry, built from one shared set of arcs. Two files
+// would have given the highlight a coastline simplified independently of the
+// silhouette it is painted on, and disagreements of a pixel would show as a
+// fringe of unshaded land along the coast of every highlighted country.
+//
+// Usage: node tools/worldmap.mjs [countries-110m.json]
 
 import { writeFile, readFile } from "node:fs/promises";
 
-const SOURCE = "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json";
+const SOURCE = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 // Equirectangular, because the projection has to be reproduced in a Hugo
 // template to place the dots (see layouts/_default/home.html) and this is the
@@ -185,8 +193,10 @@ function encode(points) {
   return `${out}Z`;
 }
 
-const rings = [];
-for (const geometry of topology.objects.land.geometries) {
+// One geometry — a whole landmass, or one country — as the rings of it that fall
+// on the map, projected and thinned.
+function outline(geometry) {
+  const rings = [];
   const polygons =
     geometry.type === "MultiPolygon" ? geometry.arcs : [geometry.arcs];
   for (const polygon of polygons) {
@@ -226,11 +236,58 @@ for (const geometry of topology.objects.land.geometries) {
       }
     }
   }
+  return rings;
 }
 
 // One path for all of the land: it is filled with a single flat colour, so
 // splitting it per landmass would only add markup.
-const d = rings.map(encode).join("");
+const land = topology.objects.land.geometries.flatMap(outline);
+const d = land.map(encode).join("");
+
+// Which countries get an outline: every country tools/locations.json can place
+// anybody in, city or not, because the map shades the country a contributor is in
+// as well as dotting the city (see layouts/_default/home.html).
+//
+// That list, and not the countries actually on the map today:
+// data/contributors.json is regenerated on every contributor change, and this file
+// would then have to be rebuilt over the network to catch up with it. Fifty-five
+// outlines is some 20 KB of path data in a file nothing downloads; the page carries
+// only the twenty of them that are used.
+const places = JSON.parse(
+  await readFile("tools/locations.json", "utf8"),
+).places;
+const wanted = new Set(
+  Object.values(places)
+    .filter((place) => place && place.country)
+    .map((place) => place.country),
+);
+
+// Natural Earth's own names, where they differ from the ones the site uses. Only
+// one does today; the rest of the fifty-five match on the nose.
+const NE_NAMES = { "United States": "United States of America" };
+
+// The city-states, which 110m has no polygon for at all — one is 50 km across and
+// the other 25, well under the pixel this dataset resolves. Listed rather than
+// warned about: their contributors are on the map as city dots, a shade of a
+// country that small would be invisible under its own dot, and a warning on every
+// run for something that cannot be fixed is a warning nobody reads.
+const NO_OUTLINE = new Set(["Hong Kong", "Singapore"]);
+
+const countries = {};
+for (const name of [...wanted].sort()) {
+  if (NO_OUTLINE.has(name)) continue;
+  const geometry = topology.objects.countries.geometries.find(
+    (candidate) => candidate.properties.name === (NE_NAMES[name] ?? name),
+  );
+  if (!geometry) {
+    // Not fatal: the country goes unshaded and its cities are still dotted, so the
+    // map stays complete. A missing name is a typo in tools/locations.json or a
+    // rename upstream, and both want a person rather than a failed build.
+    console.error(`warning: no country named ${name} in the source`);
+    continue;
+  }
+  countries[name] = outline(geometry).map(encode).join("");
+}
 
 const output = {
   // Provenance, since the geometry is generated rather than authored.
@@ -242,11 +299,14 @@ const output = {
   k: K,
   latTop: LAT_TOP,
   land: d,
+  countries,
 };
 
 await writeFile("data/worldmap.json", JSON.stringify(output) + "\n");
+const shapes = Object.values(countries).join("");
 console.log(
-  `data/worldmap.json: ${rings.length} rings, ${(d.length / 1024).toFixed(1)} KB of path data`,
+  `data/worldmap.json: ${land.length} rings, ${(d.length / 1024).toFixed(1)} KB of path data` +
+    `, plus ${Object.keys(countries).length} countries in ${(shapes.length / 1024).toFixed(1)} KB`,
 );
 
 async function fetchOrDie(url) {
