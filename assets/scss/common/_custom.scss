@@ -374,15 +374,21 @@ $map-pulse-alpha: 0.18;
   align-items: center;
   // Room for a card to open into rather than separation, which is what this is for at
   // every other width. Stacked on a phone the map is shorter than the cards standing on
-  // it: 109px tall at 320px wide, where Shanghai's six faces make a 221px card. A card
+  // it: 109px tall at 320px wide, where Shanghai's seven faces make a 249px card. A card
   // is centred on its dot, so one in the lower half of a map that short hangs past its
-  // bottom edge — Shanghai's by 42px, which over a 2rem gap laid the card's bottom edge
+  // bottom edge — Shanghai's by 56px, which over a 2rem gap laid the card's bottom edge
   // and its shadow across the legend's "Asia" row.
   //
-  // 3.5rem clears it: at 320px the widest card the data makes stops 9px above the
-  // legend's box and 14px above the first row's text. The separation the two elements
-  // actually want is the 2rem below.
-  gap: 3.5rem;
+  // 4.5rem clears it: at 320px the tallest card stops 9px above the legend's box and
+  // 14px above the first row's text. The separation the two elements actually want is
+  // the 2rem below.
+  //
+  // It is measured against the data, so it is worth knowing what moves it: every face
+  // the tallest card gains is 12px more overhang here (3.5rem was enough for six of
+  // them), and the list stops at ten and an "and N more" line, which would want 7rem.
+  // A gap that big under a 109px map is spacing that reads as a mistake, so if the map
+  // ever needs it, the card is what should give — not this.
+  gap: 4.5rem;
 }
 
 // From `sm` up the container has a fixed width, so the map stops shrinking: it is 175px
