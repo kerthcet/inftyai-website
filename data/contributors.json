@@ -337,9 +337,9 @@
       "countryOnly": true,
       "short": "New Zealand",
       "offset": {
-        "dx": 11,
-        "dy": 4,
-        "anchor": "start"
+        "dx": -8,
+        "dy": 19,
+        "anchor": "end"
       },
       "count": 1,
       "people": [
@@ -397,9 +397,9 @@
       "lng": 144.96,
       "short": "Melbourne",
       "offset": {
-        "dx": 11,
-        "dy": 6,
-        "anchor": "start"
+        "dx": -11,
+        "dy": 4,
+        "anchor": "end"
       },
       "count": 1,
       "people": [
