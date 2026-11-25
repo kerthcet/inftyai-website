@@ -1,8 +1,7 @@
 {{ define "main" }}
-{{/* Empty: the hero is rendered in sidebar-prefooter below, so that it and the map
-     can share one box — `.home-fold`, which is what keeps the first screen to the
-     two of them. `main` renders inside the theme's `.wrap` container and the map
-     outside it, and no box can hold both from here. */}}
+{{/* Empty: the whole page is rendered in sidebar-prefooter below. `main` renders
+     inside the theme's `.wrap` container, and the map and the grids are laid out
+     outside it. */}}
 {{ end }}
 
 {{ define "sidebar-prefooter" }}
@@ -11,11 +10,6 @@
     <div class="bg-dots"></div>
 </div>
 {{ end -}}
-{{/* The first screen: the hero and the map, and nothing after them. At least the
-     viewport's height less the navbar, so the project grid starts below the fold
-     on any screen tall enough to show both — the page opens on one statement and
-     one picture, and the cards are what scrolling finds. See `.home-fold`. */}}
-<div class="home-fold">
 {{/* No `py-*` utility: Bootstrap marks those `!important`, so the hero spacing
      could not then be set from _custom.scss. */}}
 <section class="section container-fluid text-center">
@@ -34,25 +28,149 @@
     <p class="lead">{{ . | safeHTML }}</p>
     {{ end -}}
     </div>
+    {{/* What InftyAI works on, from `focus` in content/_index.md: one quiet line of
+         text under the tagline, not chips — the projects below are the detail. A
+         list, so a screen reader announces it as one; the dots between are drawn by
+         the stylesheet, so they are not read out. */}}
+    {{ with .Params.focus -}}
+    <ul class="home-focus" aria-label="What we work on">
+        {{ range . }}<li>{{ . }}</li>{{ end }}
+    </ul>
+    {{ end -}}
     {{ .Content }}
 </section>
 {{ if eq $.Site.Language.LanguageName "English" }}
 
-{{/* Where the community is, straight under the lead: it is the only graphic on
-     an otherwise text-only page, so it opens the page rather than letting seven
-     cards be the first thing on it.
+{{/* Look up the star count and the language for each project, then rank by the
+     stars. One request gives both. A failed lookup (offline, rate limited) leaves
+     that card without either rather than failing the build. */}}
+{{ $headers := dict "Accept" "application/vnd.github+json" }}
+{{ with getenv "GITHUB_TOKEN" -}}
+  {{ $headers = merge $headers (dict "Authorization" (printf "Bearer %s" .)) }}
+{{ end -}}
+{{ $ranked := slice }}
+{{ range site.Data.projects.projects -}}
+  {{ $stars := -1 }}
+  {{ $language := "" }}
+  {{ $url := printf "https://api.github.com/repos/%s" .repo }}
+  {{ with try (resources.GetRemote $url (dict "headers" $headers)) -}}
+    {{ with .Err -}}
+      {{ warnf "projects: no star count for %s (%s)" $url . }}
+    {{ else with .Value -}}
+      {{ $repo := unmarshal .Content -}}
+      {{ $stars = $repo.stargazers_count | default 0 }}
+      {{/* GitHub's own reading of the code, so nothing here has to be kept up to
+           date by hand. Null for a repository that is mostly Markdown, like the
+           awesome-lists, and then the card simply shows no language. */}}
+      {{ $language = $repo.language | default "" }}
+    {{ else -}}
+      {{ warnf "projects: no response for %s" $url }}
+    {{ end -}}
+  {{ end -}}
+  {{ $ranked = $ranked | append (merge . (dict "stars" $stars "language" $language)) }}
+{{ end -}}
+{{ $cards := sort $ranked "stars" "desc" }}
 
-     Its own section with its own heading — the map is not an eighth project, and
-     nesting it under "Projects" would have filed it as one. The heading is the first
-     entry of the key under the map rather than a label over it: a label band above
-     the map and a key band below it were two layers saying one thing.
+<section class="section section-md section-features">
+    <div class="container">
+        {{/* Names the grid, so the seven project headings hang off a section
+             instead of directly off the page's h1. Shown, as a section heading:
+             without it nothing said these are InftyAI's projects and not a list
+             of tools it recommends. */}}
+        <h2 class="feature-grid-title">Featured Projects</h2>
+        {{/* A list, because that is what seven sibling projects are: screen
+             readers announce the count and allow item-by-item navigation.
+             Flexbox rather than Bootstrap's row/col — it needs no breakpoint
+             classes, no `h-100`, and no gutter overrides (Doks ships neither the
+             `.g-*` utilities nor a non-zero `--bs-gutter-y`). */}}
+        <ul class="feature-grid">
+            {{ range $cards -}}
+            <li class="feature-card">
+                <h3>
+                    {{/* The name alone, no "InftyAI /" in front: every card is an
+                         InftyAI repository, so the owner said the same thing six
+                         times. The link is stretched over the whole card by the
+                         stylesheet, so anywhere on it opens the project. */}}
+                    <a class="feature-link" href="{{ .url }}"><span class="feature-name">{{ .name }}</span></a>
+                    {{/* Omitted rather than emptied when the build-time lookup
+                         failed — `stars` is -1 then. Nothing fills it in later,
+                         so a bare star with no number beside it would be all a
+                         reader ever saw.
+
+                         Omitted under ten as well. Beside ★313, a ★0 or ★3 said
+                         "abandoned" about a project that is only new; without the
+                         badge the card is its description, which is the fairer
+                         thing to judge it by. The grid is still ordered by stars. */}}
+                    {{ if and .repo (ge .stars 10) -}}
+                    <span class="feature-stars" title="{{ .stars }} stars on GitHub">
+                        {{/* Filled rather than outlined: at 14px a solid star
+                             carries the colour, an outline barely shows it. */}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="currentColor" stroke="none" aria-hidden="true">
+                            <path
+                                d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z">
+                            </path>
+                        </svg><span class="feature-stars-count">{{ if ge .stars 1000 }}{{ printf "%.1fk" (div (float .stars) 1000) }}{{ else }}{{ .stars }}{{ end }}</span>
+                    </span>
+                    {{ end -}}
+                </h3>
+                <p>{{ .description }}</p>
+                {{/* The foot of the card: the language, as GitHub's repository cards
+                     end. Pinned to the bottom by the stylesheet, so every card in a
+                     row ends on the same line whatever the length of its
+                     description. Left out when GitHub reports no language. */}}
+                {{ if .language -}}
+                <div class="feature-meta">
+                    {{ with .language -}}
+                    {{/* The dot's colour is GitHub's for the language, by class: the
+                         site's CSP refuses inline `style`, so it cannot be set here. */}}
+                    <span class="feature-lang"><span class="feature-lang-dot feature-lang-{{ . | urlize | lower }}" aria-hidden="true"></span>{{ . }}</span>
+                    {{ end -}}
+                </div>
+                {{ end -}}
+            </li>
+            {{ end -}}
+        </ul>
+        {{/* The grid is a selection, not the whole organisation: point at the
+             rest of it on GitHub rather than listing every repository here. */}}
+        {{ with site.Data.projects.more -}}
+        <p class="feature-more">
+            <a class="feature-more-link" href="{{ .url }}">
+                {{/* The header's GitHub mark (menus.en.toml), so the link says
+                     where it goes before it is read. */}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
+                </svg>
+                <span>{{ .name }}</span>
+                <span class="feature-more-arrow" aria-hidden="true">→</span>
+            </a>
+        </p>
+        {{ end -}}
+    </div>
+</section>
+
+{{/* The community, in one section: how many, where they are, and who. After the
+     projects, so the page goes what InftyAI builds, then who builds it, then the
+     offer to build with them. The map opened the page before, as its only graphic,
+     and said "contributors" before the page had said what they contribute to.
+
+     The map can only draw the people whose profile says where they are, so the
+     wall under it is the one place the rest are on the page as people rather than
+     as the "Unlisted" share. Alphabetical (tools/contributors.mjs says why) and
+     every face the same size — a thank-you, not a leaderboard.
 
      Both data files are generated and committed (`make worldmap`, `make
-     contributors`), so this needs no lookup at build time and cannot be emptied
-     by a rate limit the way the star counts below can. */}}
+     contributors`), so this needs no lookup at build time and cannot be emptied by
+     a rate limit the way the star counts above can. */}}
 {{ with site.Data.contributors -}}
 {{ $map := site.Data.worldmap -}}
-<section class="section section-contributors">
+<section class="section section-community">
+    <div class="container">
+        <h2 class="feature-grid-title">{{ len .people }} contributors</h2>
+        <p class="people-text">From every corner of the world, thank you.</p>
+    </div>
     <div class="container">
         {{/* `.cities` rather than `len .places`: a country-level fallback is a mark
              but not a city, so counting the marks called India a city. */}}
@@ -373,8 +491,8 @@
              single `role="img"` graphic. */}}
         <div class="worldmap-summary">
             {{/* One line of text: "By region", then each region and its share. The
-                 tagline above the map already says whose map it is, so all the line
-                 needs to say is what the shares are split by. "Contributors" is read
+                 section's heading above the map already says whose map it is, so all
+                 the line needs to say is what the shares are split by. "Contributors" is read
                  out in front of it, so a screen reader hears "Contributors by region".
 
                  Simple on purpose: a stacked bar and then a chart of ranked bars were
@@ -387,8 +505,9 @@
                  share of the seven does not read as the biggest region.
 
                  The heading is read out as "Contributors by region" (its
-                 `aria-label`); on screen the tagline is what names the map. */}}
-            <h2 class="worldmap-key-title" aria-label="Contributors by region">By region</h2>
+                 `aria-label`); on screen the section's heading is what names the map.
+                 An h3, under that heading's h2. */}}
+            <h3 class="worldmap-key-title" aria-label="Contributors by region">By region</h3>
             <ul class="worldmap-regions">
                 {{/* Largest first, as tools/contributors.mjs ranks them; "Unlisted"
                      last, so a remainder never heads a list of places. With it the
@@ -403,136 +522,8 @@
         </div>
         </div>
     </div>
-</section>
-{{ end -}}
-{{ end -}}
-</div>
-{{ if eq $.Site.Language.LanguageName "English" }}
-
-{{/* Look up the star count and the language for each project, then rank by the
-     stars. One request gives both. A failed lookup (offline, rate limited) leaves
-     that card without either rather than failing the build. */}}
-{{ $headers := dict "Accept" "application/vnd.github+json" }}
-{{ with getenv "GITHUB_TOKEN" -}}
-  {{ $headers = merge $headers (dict "Authorization" (printf "Bearer %s" .)) }}
-{{ end -}}
-{{ $ranked := slice }}
-{{ range site.Data.projects.projects -}}
-  {{ $stars := -1 }}
-  {{ $language := "" }}
-  {{ $url := printf "https://api.github.com/repos/%s" .repo }}
-  {{ with try (resources.GetRemote $url (dict "headers" $headers)) -}}
-    {{ with .Err -}}
-      {{ warnf "projects: no star count for %s (%s)" $url . }}
-    {{ else with .Value -}}
-      {{ $repo := unmarshal .Content -}}
-      {{ $stars = $repo.stargazers_count | default 0 }}
-      {{/* GitHub's own reading of the code, so nothing here has to be kept up to
-           date by hand. Null for a repository that is mostly Markdown, like the
-           awesome-lists, and then the card simply shows no language. */}}
-      {{ $language = $repo.language | default "" }}
-    {{ else -}}
-      {{ warnf "projects: no response for %s" $url }}
-    {{ end -}}
-  {{ end -}}
-  {{ $ranked = $ranked | append (merge . (dict "stars" $stars "language" $language)) }}
-{{ end -}}
-{{ $cards := sort $ranked "stars" "desc" }}
-
-<section class="section section-md section-features">
+    {{ with .people -}}
     <div class="container">
-        {{/* Names the grid, so the seven project headings hang off a section
-             instead of directly off the page's h1. Shown, as a section heading:
-             without it nothing said these are InftyAI's projects and not a list
-             of tools it recommends. */}}
-        <h2 class="feature-grid-title">Featured Projects</h2>
-        {{/* A list, because that is what seven sibling projects are: screen
-             readers announce the count and allow item-by-item navigation.
-             Flexbox rather than Bootstrap's row/col — it needs no breakpoint
-             classes, no `h-100`, and no gutter overrides (Doks ships neither the
-             `.g-*` utilities nor a non-zero `--bs-gutter-y`). */}}
-        <ul class="feature-grid">
-            {{ range $cards -}}
-            <li class="feature-card">
-                <h3>
-                    {{/* The name alone, no "InftyAI /" in front: every card is an
-                         InftyAI repository, so the owner said the same thing six
-                         times. The link is stretched over the whole card by the
-                         stylesheet, so anywhere on it opens the project. */}}
-                    <a class="feature-link" href="{{ .url }}"><span class="feature-name">{{ .name }}</span></a>
-                    {{/* Omitted rather than emptied when the build-time lookup
-                         failed — `stars` is -1 then. Nothing fills it in later,
-                         so a bare star with no number beside it would be all a
-                         reader ever saw.
-
-                         Omitted under ten as well. Beside ★313, a ★0 or ★3 said
-                         "abandoned" about a project that is only new; without the
-                         badge the card is its description, which is the fairer
-                         thing to judge it by. The grid is still ordered by stars. */}}
-                    {{ if and .repo (ge .stars 10) -}}
-                    <span class="feature-stars" title="{{ .stars }} stars on GitHub">
-                        {{/* Filled rather than outlined: at 14px a solid star
-                             carries the colour, an outline barely shows it. */}}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                            fill="currentColor" stroke="none" aria-hidden="true">
-                            <path
-                                d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z">
-                            </path>
-                        </svg><span class="feature-stars-count">{{ if ge .stars 1000 }}{{ printf "%.1fk" (div (float .stars) 1000) }}{{ else }}{{ .stars }}{{ end }}</span>
-                    </span>
-                    {{ end -}}
-                </h3>
-                <p>{{ .description }}</p>
-                {{/* The foot of the card: the language, as GitHub's repository cards
-                     end. Pinned to the bottom by the stylesheet, so every card in a
-                     row ends on the same line whatever the length of its
-                     description. Left out when GitHub reports no language. */}}
-                {{ if .language -}}
-                <div class="feature-meta">
-                    {{ with .language -}}
-                    {{/* The dot's colour is GitHub's for the language, by class: the
-                         site's CSP refuses inline `style`, so it cannot be set here. */}}
-                    <span class="feature-lang"><span class="feature-lang-dot feature-lang-{{ . | urlize | lower }}" aria-hidden="true"></span>{{ . }}</span>
-                    {{ end -}}
-                </div>
-                {{ end -}}
-            </li>
-            {{ end -}}
-        </ul>
-        {{/* The grid is a selection, not the whole organisation: point at the
-             rest of it on GitHub rather than listing every repository here. */}}
-        {{ with site.Data.projects.more -}}
-        <p class="feature-more">
-            <a class="feature-more-link" href="{{ .url }}">
-                {{/* The header's GitHub mark (menus.en.toml), so the link says
-                     where it goes before it is read. */}}
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                    stroke-linejoin="round" aria-hidden="true">
-                    <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
-                </svg>
-                <span>{{ .name }}</span>
-                <span class="feature-more-arrow" aria-hidden="true">→</span>
-            </a>
-        </p>
-        {{ end -}}
-    </div>
-</section>
-
-{{/* Everyone who has a commit in, as faces. The map up top can only draw the people
-     whose profile says where they are, so this is the one place the rest are on the
-     page as people rather than as the "Unlisted" share. It sits between the projects
-     and the invitation on purpose: what was built, who built it, then the offer to
-     build with them.
-
-     Alphabetical (tools/contributors.mjs says why) and every face the same size —
-     this is a thank-you, not a leaderboard. */}}
-{{ with site.Data.contributors -}}
-{{ with .people -}}
-<section class="section section-people">
-    <div class="container">
-        <h2 class="feature-grid-title">{{ len . }} contributors</h2>
-        <p class="people-text">From every corner of the world, thank you.</p>
         <ul class="people-wall">
             {{ range . -}}
             <li>
@@ -547,8 +538,8 @@
             {{ end -}}
         </ul>
     </div>
+    {{ end -}}
 </section>
-{{ end -}}
 {{ end -}}
 
 {{/* An invitation, not a project — kept out of the grid so it does not read as

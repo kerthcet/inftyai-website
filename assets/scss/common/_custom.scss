@@ -227,6 +227,41 @@ body > * {
 
 // The one piece of prose on the page. Constrained because a full-width measure
 // under a centred headline reads as a caption rather than a statement.
+// The focus areas under the tagline: one line of plain text in the tagline's ink,
+// a step smaller, with a dot between each — a summary of what the projects below
+// are about, quieter than the sentence over it.
+//
+// Inline text, not a flex row, so it can wrap balanced: on a phone it breaks into
+// two even lines. Each dot belongs to the item before it, and an item and its dot
+// never break apart, so a line can end on a dot but never begin with one — the flex
+// row put "· Local AI" alone at the start of a second line.
+.home-focus {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  text-wrap: balance;
+  font-size: clamp(0.8125rem, 1.1vw, 0.9375rem);
+  font-weight: 500;
+  line-height: 1.7;
+  color: rgba(var(--bs-body-color-rgb), 0.6);
+
+  li {
+    display: inline;
+    white-space: nowrap;
+  }
+
+  // The dot carries the space after it, and that space — wrappable, unlike the rest
+  // of the item — is where a line can break. Not whitespace in the markup between
+  // the items: the minifier strips it, and the line then never wrapped at all.
+  li:not(:last-child)::after {
+    content: "· ";
+    margin-left: 0.625rem;
+    word-spacing: 0.375rem;
+    white-space: normal;
+    color: rgba(var(--bs-body-color-rgb), 0.35);
+  }
+}
+
 .home .lead {
   max-width: 40rem;
   margin-inline: auto;
@@ -310,35 +345,6 @@ $home-gap: clamp(2rem, 4.5vw, 3.5rem);
   .section-features {
     padding-top: 0;
     padding-bottom: $home-gap;
-  }
-}
-
-// The first screen: hero and map, at least the viewport's height less the 52px
-// navbar, so "Featured Projects" is never visible before the reader scrolls. Where
-// the two are shorter than the window — a tall monitor, a phone — they are centred
-// in it, and the extra height falls evenly above and below rather than as a white
-// band under the map. Where they are taller, this does nothing and the grid is below
-// the fold anyway.
-//
-// `svh`, the small viewport: on a phone `vh` is the height with the browser's bars
-// retracted, which would leave the box taller than the screen it first opens on.
-// Not itself a `.section`, so the 0.9 zoom on those does not scale this height.
-//
-// From `md` up only. On a phone the hero and map are under 500px tall, so centring
-// them in an 844px screen left 160px blank over the headline and as much again under
-// the region shares — a third of the first screen empty, around a map 347px wide.
-// There the page just runs on, and the cards following the map is the right thing
-// to see: a phone is scrolled, not read a screen at a time.
-.home-fold {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-@include media-breakpoint-up(md) {
-  .home-fold {
-    min-height: calc(100vh - 52px);
-    min-height: calc(100svh - 52px);
   }
 }
 
@@ -617,15 +623,18 @@ $feature-gap: 1.25rem;
 // left three empty bands taller than the cards themselves. See $home-gap above for
 // why they are all the same value, and why the top paddings are zero: the block
 // before each of these already owns the space.
-.section-contributors {
-  padding-top: 0;
-  padding-bottom: $home-gap;
-}
-
-.section-people {
+// The community section: heading, map and key, then the wall of faces — one block,
+// so its parts are closer to each other than it is to the projects above it.
+.section-community {
   padding-top: 0;
   padding-bottom: $home-gap;
   text-align: center;
+
+  // The map's own key sits close under it; the faces get a block's gap of their
+  // own, being the next thing said rather than more of the key.
+  .people-wall {
+    margin-top: 2.5rem;
+  }
 }
 
 .section-cta {
